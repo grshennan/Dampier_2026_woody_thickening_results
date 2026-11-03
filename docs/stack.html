@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image Feature Stack</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html" aria-current="page">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
+<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
+<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>2 · The image stack</h1>
+<p class="sub">49 features, native NISAR 20 m grid (EPSG:32751, 11625 × 9081), images 2026-09-20 to 10-11.</p>
+
+<h2>Result</h2>
+<div class="wrap"><table>
+<tr><th>Group</th><th>Sensor</th><th>Content</th><th>Dates</th></tr>
+<tr><td rowspan="2">SAR (36)</td><td>NISAR L-band GSLC</td><td>γ0 HH / HV + dual-pol decomposition (Pu, Ps, Pd, DpRSI, alpha …),
+2 tracks (147 D, 168 A), Refined Lee 9 × 9, decomposition window 5; coherence not used</td>
+<td>147 D 09-28, 10-10; 168 A 09-29, 10-11</td></tr>
+<tr><td>Sentinel-1 C-band</td><td>γ0 VV / VH + decomposition, monthly mosaic (CDSE)</td><td>September 2026</td></tr>
+<tr><td>MS (13)</td><td>Sentinel-2</td><td>NBART bands + NDVI, EVI, BSI …, geomedian</td><td>2026-09-20 to 10-10</td></tr>
+</table></div>
+<p>File: <code>E:\nisar_2026\feature_stack_2026_gslcg0_rflee9_ws5_s1.tif</code> <span class="src">(not yet available)</span>.
+The images bracket the 2026 LiDAR flights (10-05 to 10-09).</p>
+
+<h2>How we chose it</h2>
+<p>The first 2026 stack used NISAR GCOV, Refined Lee 5 × 5. The accuracy diagnosis (Stage 1 / 1.5) then tested the
+NISAR processing:</p>
+<ul>
+<li>Radiometry (γ0 / σ0), GSLC γ0 vs GCOV, a no-phase decomposition, filter and decomposition windows.</li>
+<li>None of this raised the NISAR + S2 classification beyond the noise (OA 0.709–0.726).</li>
+<li>NISAR alone gained +0.038 OA with GSLC and a 9 × 9 filter → this became the reference stack.</li>
+<li>Sentinel-1 added nothing to the classification, but it adds to the regression (cover, below).</li>
+</ul>
+<p>Detail: <a href="nisar_accuracy/index.html">NISAR accuracy diagnosis</a> (Stage 1, 1.5).</p>
+
+<h2>What each sensor carries</h2>
+<!-- BEGIN table:reg_sensor -->
+<div class="wrap"><table><tr><th>target</th><th class=n>NISAR</th><th class=n>S1</th><th class=n>S2</th></tr><tr><td>mean</td><td class=n>0.540 (0.010)</td><td class=n>0.020 (0.001)</td><td class=n>0.509 (0.008)</td></tr><tr><td>cover</td><td class=n>0.312 (0.006)</td><td class=n>0.204 (0.014)</td><td class=n>0.377 (0.004)</td></tr></table></div><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_importance.csv">class_defs/outputs/regression/score_importance.csv</a> (2026-11-02 14:41)</p>
+<!-- END table:reg_sensor -->
+<p>Drop in K-fold R² when one sensor's features are permuted (RF, ALL stack). NISAR and S2 carry the px mean height
+about equally. S1 matters for cover, not for height.</p>
+
+<figure><a href="../lidar_2026/outputs/structure_sar/figures/pooled/r2_matrix.png"><img src="../lidar_2026/outputs/structure_sar/figures/pooled/r2_matrix.png" alt="R2 matrix of structure statistics against NISAR features" loading="lazy"></a>
+<figcaption>One NISAR feature against one structure statistic (5 sites pooled). Cover × p98 explains most
+(168 A HV: R² 0.56); p98 alone less (0.45–0.50). L-band responds to cover and height together.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/structure_vs_sar.py">structure_vs_sar.py</a> ·
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_structure_sar.md">REPORT_structure_sar.md</a></figcaption></figure>
+
+<figure><a href="../lidar_2026/outputs/structure_sar/figures/pooled/scatter_main.png"><img src="../lidar_2026/outputs/structure_sar/figures/pooled/scatter_main.png" alt="Scatter of SAR features against cover x p98, p98 and cover" loading="lazy"></a>
+<figcaption>The best 4 NISAR features against cover × p98 (rows 1–2), p98 (row 3) and cover (row 4).
+Backscatter saturates above about cover × p98 = 5 m.</figcaption></figure>
+
+<figure><a href="../nisar_2026/outputs/figures/fig_importance.png"><img src="../nisar_2026/outputs/figures/fig_importance.png" alt="XGBoost feature importance, 5-class 2026" loading="lazy"></a>
+<figcaption>First 2026 model (5-class XGB, GCOV stack): S2 greenness (EVI, NDVI) and 168 A HH / HV lead.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/figures_2026.py">figures_2026.py</a></figcaption></figure>
+
+<h2>Code</h2>
+<ul>
+<li>Stack: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/feature_stack_2026.py">nisar_2026\feature_stack_2026.py</a>
+(<code>--sar gslc_gamma --rflee-win 9 --dcmp-ws 5 --s1</code>).</li>
+<li>S2 geomedian: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/s2_geomedian_2026.py">s2_geomedian_2026.py</a>;
+S1 mosaic: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/diagnosis/s1_mosaic_2026.py">diagnosis\s1_mosaic_2026.py</a>.</li>
+<li>Refined Lee filter: <code>G:\python\GDV\GEDI\rflee.py</code>. NISAR product list: <code>E:\NISAR\README.md</code>.</li>
+</ul>
+</main>
+</body>
+</html>

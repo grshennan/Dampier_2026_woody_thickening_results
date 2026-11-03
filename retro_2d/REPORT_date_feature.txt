@@ -1,0 +1,119 @@
+REPORT - PALSAR-2 mosaic date layer as a feature, 2025 k4r
+=========================================================
+
+Status: complete, 2026-11-02. User request: add the mosaic date layer as a feature; does it identify
+sites; mirror one 2025 PALSAR + S2 + S1 classification and compare accuracies.
+Mirror: 2025 k4r, 20 bands, n_iter 200, seed 42 (outputs\2025\k4r\, the standard result).
+New run: same + palsar_date (21 bands), outputs\2025\k4r_date\.
+
+
+ANSWER
+------
+
+1. Sites: the date identifies SITE GROUPS, not single sites.
+   - 3 dates carry label cells; 16 of 18 sites are on one date only.
+   - Cramer's V site x date 0.935; NMI 0.52; site from date 0.35 (prior 0.27).
+   - 07-30 = 100 % Yawuru (10 sites). 08-27 + 12-03 = 89-97 % Dampier. V source x date 0.79.
+   - "no canopy" is 21 % of 07-30 labels, 0.0 % of 08-27, 0.7 % of 12-03.
+2. K-fold gain is small and positive.
+   - Own searches: kappa 0.5950 -> 0.5986 (+0.004), OA +0.001, balanced +0.005.
+   - Same base params, 3 fold seeds: kappa +0.005 to +0.008, all 3 positive.
+   - palsar_date importance rank 4 of 21 (gain 0.086).
+   - Date alone (majority class per date): kappa 0.13.
+3. The K-fold gain is an upper bound. Stratified pixel K-fold puts neighbours of the same site in
+   train and test. A site-group feature then adds site memory. Group CV is not used (user rule).
+4. Maps: 89 % agreement (null 0.22, lift 0.67), mainland and pindan.
+   - Seam steps get LARGER: 07-30 | 08-27 0.19 -> 0.26 class; 08-27 | 12-03 0.16 -> 0.21 class.
+   - Strip class mixes move towards the class mix of their own label sites (07-30: C4 2.6 -> 0.8 %).
+5. Recommendation: do not use the date as a feature.
+   - The gain (+0.004-0.008 kappa) is near the noise and partly site memory.
+   - It makes the strip artefact worse, not better.
+   - In 2019-2024, 30-40 % of the mainland is on strips with no label cells: their date values are
+     never seen in training, so the trees put them into an arbitrary neighbour date.
+   - This supports PLAN_palsar_seamnorm.md (normalise strips at the seams), still waiting for approval.
+
+
+TABLES (full: outputs\palsar_date_feature\date_feature_tables.txt)
+------
+
+1. Label cells by date
+date        sites                                     source         no canopy %  C4 %
+2025-07-30  govcowwell, YA25_3-5, YJ25_1-4, YJ25_6*,   100 % Yawuru      20.8      13.2
+            YOct25_1
+2025-08-27  Biota* (75 %), South Dampier, YA25_1-2,    89 % Dampier       0.0      53.2
+            YJ25_5
+2025-12-03  9 Mile, Bunda Extra, Country Downs,        97 % Dampier       0.7      63.8
+            Biota* (25 %), YJ25_6* (89 %)
+* on two dates
+
+2. K-fold, own 200-iter search each
+metric        base    +date   diff
+OA            0.7240  0.7254  +0.0014
+balanced      0.7425  0.7476  +0.0051
+kappa         0.5950  0.5986  +0.0036
+F1w           0.7311  0.7328  +0.0017
+F1 no canopy  0.8820  0.8813  -0.0007
+F1 C1         0.7045  0.7057  +0.0012
+F1 C2         0.5760  0.5720  -0.0039
+F1 C3         0.6769  0.6882  +0.0113
+F1 C4         0.7988  0.7990  +0.0002
+
+3. Fixed base params, kappa by fold seed
+seed  base    +date   diff
+42    0.5950  0.6021  +0.0071
+7     0.5947  0.6027  +0.0080
+123   0.5975  0.6021  +0.0046
+
+4. Importance (gain), +date run, top 5
+Blue 0.106 | Unpolarised 0.093 | Surface 0.091 | palsar_date 0.086 | HV 0.081
+
+5. Per-site K-fold OA: changes -0.017 to +0.069 (YJ25_1). Table in the tables file.
+
+6. Maps, class shares % per strip (mainland), base / +date
+date        mainland %  agree  no can.    C1         C2         C3         C4
+2025-07-30  19.6        0.891  11.3/12.0  35.6/33.2  34.3/33.9  16.1/20.0   2.6/0.8
+2025-08-27  12.4        0.885  10.2/9.8   22.7/26.6  21.1/19.8  34.5/29.9  11.5/13.9
+2025-12-03  67.6        0.890   7.8/7.9   19.3/17.8  27.7/29.5  25.9/27.9  19.3/16.9
+Whole mainland: no canopy 8.8/8.9, C1 22.9/21.9, C2 28.1/29.1, C3 25.3/26.8, C4 15.0/13.3.
+
+7. Class-code step at seams (2 km band, mean code a - b)
+a           b           base    +date   |+date|-|base|
+2025-07-30  2025-08-27  +0.193  +0.263  +0.070
+2025-07-30  2025-12-03  +0.020  +0.025  +0.005
+2025-08-27  2025-12-03  -0.164  -0.212  +0.049
+No placebo needed: both maps are on the same land, so the land part cancels in the difference.
+
+
+METHOD
+------
+
+Date       JAXA <tile>_25_date_F02DAR.tif (21 tiles), nearest at the 2025 stack pixel centres
+           (date_feature.py prep) -> outputs\palsar_date\date_2025_owngrid.tif, float32 days since
+           2014-05-24, nodata -9999 (JAXA 0/1). 97.6 % of the grid has a date; all label cells do.
+Feature    classify_retro.py --date (divergence 11): palsar_date as band 21, numeric.
+Run        classify_retro.py --years 2025 --labels k4r --date --n-iter 200 --n-jobs 8 (2371 s),
+           log classify_retro_k4r_date.log.
+Analysis   date_feature.py analyse (log date_feature_analyse.log): label rows identical to base
+           (asserted); noise floor = base best params, with / without date, fold seeds 42 / 7 / 123;
+           map null = 8 x 8 px block shuffle, 5 draws.
+
+
+CAVEATS
+-------
+
+1. 2025 only. In 2025 every large strip has label cells; 2019-2024 would be worse (ANSWER 5).
+2. One search per feature set; the fixed-param seeds remove search noise but not model seed noise.
+3. Seam steps have no placebo (only 2025 maps compared); they are base vs +date on the same pixels.
+4. PALSAR calibration caveat (REPORT_palsar_date.txt caveat 7) applies unchanged.
+
+
+FILES
+-----
+
+G:\python\dampier_veg_timeseries\retro_2d\date_feature.py
+G:\python\dampier_veg_timeseries\retro_2d\outputs\palsar_date\date_2025_owngrid.tif
+G:\python\dampier_veg_timeseries\retro_2d\outputs\2025\k4r_date\  (metrics, importance, predictions,
+  XGB_DP_PALSAR_S1_S2_2025_2D_k4r_date.tif)
+G:\python\dampier_veg_timeseries\retro_2d\outputs\palsar_date_feature\  (date_feature_tables.txt,
+  site_by_date.csv, class_by_date.csv, fixed_params_seeds.csv, map_agreement.csv, strip_shares.csv,
+  seam_steps.csv)

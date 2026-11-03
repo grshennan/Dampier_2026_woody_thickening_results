@@ -1,0 +1,143 @@
+REPORT - Preceding wet-season rain at each PALSAR-2 date vs PALSAR and k3r / k4r maps
+=====================================================================================
+
+Status: complete, 2026-10-31. User request: wetter seasons give new leaves and larger
+plants, not only moisture; relate each year to the rain of the PRECEDING WET SEASON,
+not only the 30 days before. Follows REPORT_palsar_date.txt (same seams, same ground).
+
+
+ANSWER
+------
+
+1. The preceding (completed) wet season does NOT show in PALSAR or in the classes.
+   - Seams: net step vs difference in W_prev, rho -0.20 to +0.11 (23 seams, n.s.).
+   - Year pairs (same land, two dates): rho -0.03 to +0.28 (29 groups, n.s.).
+   - Years (n = 5): rho -0.7 to +0.6, all n.s.
+   The two clean cases (same incidence, large W_prev difference) are null:
+     2023-12-06 | 2022-12-21: W_prev +676 mm -> HV +0.05 SD, k3r code +0.02
+     2024-07-31 | 2024-01-03: W_prev -623 mm -> HV +0.09 SD, k3r code +0.09 (wrong sign)
+
+2. What DOES show is rain in the CURRENT wet season before the date (W_curr). This is
+   non-zero only for dates inside the wet season (Dec-Mar here).
+   - Year pairs: HV rho +0.69, HH +0.64, alpha +0.61, k3r code +0.58, k4r +0.62
+     (all p <= 0.001, 29 groups).
+   - Seams: HV +0.47, alpha +0.48, k3r code +0.46, k4r +0.51 (p 0.01-0.03, 23 seams).
+     Same-incidence seams only: +0.13 to +0.28, n.s. (n = 15).
+
+3. The effect goes away again the next dry season. Same land (Biota track / South
+   Dampier / YA25_1-2 strip), same beam (linci 32 deg in all three):
+     2021-10-27 (dry) -> 2023-03-29 (W_curr 897 mm): HV +0.79 SD, alpha +1.73 SD, k3r code +0.30
+     2023-03-29       -> 2024-08-28 (dry):            HV -0.64 SD, alpha -1.55 SD, k3r code -0.35
+   This is the pattern of a temporary wet-season state (water in soil and plants, green
+   leaves, grass). It is not the pattern of growth that stays.
+
+4. Interpretation. At L-band (24 cm) the backscatter is mostly from stems and branches.
+   New leaves and grass are small to L-band and are mostly lost by the dry season, when
+   most strips are acquired. One season of woody growth is too small to see. So the leaf
+   and plant response that the user expects is real, but in PALSAR it appears only as
+   the in-season effect (2), and it does not carry into the dry season (1, 3).
+   S1 and S2 (July images) are a different question: REPORT_rain.txt found that S2 bands
+   follow the wet season (rho -0.9). That is not tested here.
+
+5. "Preceding wet season" is not the same for every pixel of a mosaic. For 2023 and 2024
+   it differs from the Jul-Jun rain year in REPORT_rain.txt:
+     year  W_prev at own dates  rain-year wet (REPORT_rain)
+     2019  198                  174
+     2021  888                  921
+     2023  688                  1036
+     2024  531                  283     (Jan 2024 strips follow the wet 2022-23 season)
+     2025  561                  598
+
+6. Years (n = 5): k3r mean code vs rain30 rho -1.0 (p 0.02) and k4r C3 vs W_curr -1.0
+   (p 0.02): 2 hits in 68 tests, expected about 3 by chance. The sign is opposite to the
+   within-year result. Not used.
+
+Summary: the class maps do not follow the preceding wet season. They follow rain in the
+current wet season when the acquisition is inside it, and that effect reverses in the
+next dry-season image. For the class maps this is an acquisition artefact. Wet-season
+strips (2019-02-01, 2022-12-21, 2023-03-01, 2023-03-29) read taller than the same land in
+a dry season.
+
+
+TABLES (full: outputs\palsar_wetseason\palsar_wetseason_tables.txt)
+------
+
+1. Strips >= 0.5 % of fixed ground (mm; pixel mean of own ERA5 cell)
+year  date        share  W_prev  W_curr   R12
+2019  2019-02-01    3.0   908      75     380
+2019  2019-08-07   32.7   157       0     158
+2019  2019-10-30   14.2   173       3     173
+2019  2019-11-13   49.9   185      10     188
+2021  2021-06-09   18.8  1001       0    1003
+2021  2021-10-22    3.2  1063       2    1068
+2021  2021-10-27   13.5   757       1     775
+2021  2021-11-10   31.7   777       5     785
+2021  2021-12-08   32.5   970      12     953
+2023  2022-12-21   50.8   507     164     666
+2023  2023-03-01    1.0   544     845     994
+2023  2023-03-29   13.9   467     897    1040
+2023  2023-12-01    1.8  1296      12    1246
+2023  2023-12-06   32.0  1043      13     998
+2024  2024-01-03   30.7  1038      24     904
+2024  2024-01-12    2.3  1285      34    1089
+2024  2024-07-31    7.8   223       0     260
+2024  2024-08-28   12.2   255       0     294
+2024  2024-11-25   47.0   285      56     320
+2025  2025-07-30   24.0   441       0     508
+2025  2025-08-27   12.6   570       0     655
+2025  2025-12-03   63.1   606      51     627
+
+2. Spearman rho, change vs rain difference (p in brackets)
+test                       n   W_prev        W_curr        R12           rain30
+seams, HV                 23   +0.06 (0.77)  +0.47 (0.02)  +0.38 (0.08)  +0.29 (0.18)
+seams, k3r code           23   -0.13 (0.54)  +0.46 (0.03)  +0.20 (0.36)  +0.27 (0.22)
+seams, k4r code           23   -0.10 (0.65)  +0.51 (0.01)  +0.16 (0.46)  +0.32 (0.14)
+seams same linci, k3r     15   -0.27 (0.32)  +0.18 (0.51)  +0.18 (0.52)  -0.25 (0.38)
+year pairs, HV            29   +0.28 (0.15)  +0.69 (<.001) +0.65 (<.001) +0.40 (0.03)
+year pairs, alpha         29   -0.03 (0.90)  +0.61 (<.001) +0.26 (0.18)  +0.37 (0.05)
+year pairs, k3r code      29   +0.04 (0.86)  +0.58 (0.001) +0.34 (0.07)  +0.44 (0.02)
+year pairs, k4r code      29   +0.03 (0.89)  +0.62 (<.001) +0.35 (0.07)  +0.45 (0.01)
+R12 mixes W_prev and W_curr; it is weaker than W_curr alone.
+
+
+METHOD
+------
+
+Script     retro_2d\palsar_wetseason.py (log palsar_wetseason.log)
+Rain       ERA5 monthly total precipitation, 0.25 deg (outputs\rain\raw\era5_tp_monthly_DP.nc,
+           2000-01..2025-12; the csv of REPORT_rain stops at 2025-07, the raw file does not).
+           Each fixed-ground pixel takes its nearest ERA5 cell (58 cells) and its own date.
+           W_prev  Oct-Apr total of the last wet season completed before the date
+           W_curr  1 Oct of the current season to the date (0 for May-Sep dates)
+           R12     the 12 full months before the date's month
+           rain30  30 days before the date, monthly pro rata
+Seams      palsar_date seams (same pixel sets, same net steps); rain = side a mean - side b mean.
+Year pairs consecutive image years; pixels grouped by (strip in year 1, strip in year 2),
+           groups >= 0.5 % of fixed ground. Group change = median band change (pooled SD)
+           and mean class-code change. Each pair's share-weighted mean is removed (whole-year
+           model and acquisition offset), so the test is within each pair.
+Years      fixed-ground means of the pixel rain values, exact permutation p.
+
+
+CAVEATS
+-------
+
+1. Few clean cases for W_prev: a large W_prev difference at a seam happens only where a
+   strip from Jan-Mar sits next to one from later in the year (2019, 2023, 2024). 6 seams.
+2. W_curr and incidence are confounded at the 2024-11-25 seams (W2 beam, +10-12 deg);
+   with the same incidence the seam result is not significant. The year-pair result and
+   the Biota-strip case (3) have the same incidence and support W_curr.
+3. Year-pair groups are not independent (shared strips) and a group's change includes
+   any real change (fire) in that area. p values are optimistic.
+4. ERA5 at 0.25 deg; monthly totals; the wet season is fixed at Oct-Apr.
+5. The PALSAR calibration caveat in REPORT_palsar_date.txt (DN amplitude vs DN/10000)
+   applies to all bands here.
+6. Only PALSAR and the class maps are tested; S1 / S2 are July images on other dates.
+
+
+FILES
+-----
+
+G:\python\dampier_veg_timeseries\retro_2d\outputs\palsar_wetseason\palsar_wetseason_tables.txt
+G:\python\dampier_veg_timeseries\retro_2d\outputs\palsar_wetseason\ strip_rain.csv, seams_rain.csv,
+  seam_rho.csv, pair_groups.csv, pair_rho.csv, year_rain.csv, year_rho.csv

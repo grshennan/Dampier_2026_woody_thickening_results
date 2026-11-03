@@ -1,0 +1,143 @@
+REPORT: South Dampier, unfiltered vs 5 cm-filtered DJI Terra export
+2026-11-03. Script retro_2d\unf_test.py --site "South Dampier". Chain retro_2d\unf_sd_chain.ps1.
+Outputs retro_2d\outputs\unf_test_south_dampier\. Same method as REPORT_unf_biota.txt.
+
+RESULT
+- Heights do not change: d p98_can median -0.001 m, d p90_can +0.002 m.
+- Cover drops: d cover137 median -0.018 (Biota -0.020), in 98.7 % of cells.
+- Classes change much more than at Biota:
+  k4r 8.1 % (Biota 1.5 %), k3r 5.0 % (Biota 0.9 %), k4h 6.9 % (Biota 1.1 %).
+- The Biota per-class estimate for South Dampier (~2 %) was wrong by 4x.
+  Cause: at South Dampier 12.6 % of k4r C4 cells go to C2. At Biota that rate was 0.5 %.
+- Against the Biota rule ("if a second site changes > 3 %, re-export the others"):
+  South Dampier changes 8.1 %, so the filter matters at this site.
+  The decision to re-export the remaining sites (Bunda Extra, Country Downs, 9 Mile) is the user's.
+
+GEOREFERENCE
+The unfiltered export is the filtered cloud moved by a fixed amount, as at Biota, but by a different amount:
+  CHM phase correlation  dx -2.961 m, dy -1.969 m (10 of 10 blocks of 512 m, IQR <= 0.002 m, peak 0.60)
+  DEM phase correlation  dx -2.996 m, dy -1.998 m (10 blocks, peak 0.32)
+  header min x / y       dx -2.875 m, dy -2.000 m
+  (Biota: -1.002 / -1.508, header -1.0 / -1.5)
+Header and CHM disagree by 0.086 m in x, so the chain used the measured CHM offset (user: no questions that
+night): the height cloud was moved +2.961 / +1.969 m. The DEM points to a round -3.0 / -2.0 m; the 0.04 m
+difference is negligible on 20 m cells. User ruling from Biota kept: the old (filtered) position is correct.
+=> The DJI Terra "unf" export settings move the cloud by a different amount at each site. Check them before
+   any re-export.
+
+CHM CHECK, 0.5 m p98, unfiltered - filtered
+                      n pixels   median   p05     p95     |d| median
+as exported, all      14.1 M     -0.001   -4.93   +4.90   0.996
+as exported, canopy    5.1 M     -1.740   -7.00   +2.73   2.071
+shifted back, all     14.1 M     -0.001   -0.43   +0.35   0.024
+shifted back, canopy   5.1 M     -0.009   -1.58   +0.35   0.061
+(canopy = filtered CHM >= 1.37 m; metres. Biota shifted back: |d| median 0.020 / 0.024.)
+
+POINTS
+                         filtered        unfiltered      ratio   (Biota)
+all points               1,119,557,907   1,459,120,086   1.303   1.180
+first returns (grid)                     1,241,323,487   1.313   1.183
+canopy first returns (>= 1.37 m)                         1.142   1.087
+The filter removed more points here than at Biota, and again mostly ground / low returns.
+
+CELL CHANGE, unfiltered - filtered (fill >= 0.9 in both)
+grid        cells   d cover137                 cells with   d p98_can (m)
+                    median  p05     p95       cover up      median  p05    p95
+NISAR 20 m   8,652  -0.017  -0.045  -0.002    1.6 %         -0.001  -0.07  +0.07
+PALSAR 2025  5,872  -0.019  -0.044  -0.003    1.3 %         -0.001  -0.08  +0.08
+(PALSAR 2019 / 2021 / 2023 / 2024: d cover137 median -0.018, the same within 0.001.)
+
+other bands, PALSAR 2025, median change:
+  cover_h02 -0.024   cover_h1 -0.021   cover_h2 -0.014   cover_h5 -0.004
+  p90_can   +0.002 m p98_all  -0.082 m mean_all -0.073 m
+  (mean_all and p98_all include the extra low returns; the *_can bands do not.)
+
+by filtered cover137, PALSAR 2025:
+cover137      cells   d cover137   d p98_can   k4r changed   k3r changed
+0.01 - 0.1    1,125   -0.007       -0.001        3.0 %         3.4 %
+0.1  - 0.3    3,304   -0.019       -0.002        8.3 %         5.7 %
+0.3  - 0.5    1,365   -0.027       +0.000       12.0 %         4.9 %
+0.5  - 1.0       77   -0.031       +0.004        3.9 %         1.3 %
+The cover drop grows with cover.
+
+CLASS CHANGE
+scheme  grid         cells   changed
+k4h     NISAR 20 m    8,652  6.3 %
+k4h     PALSAR 2025   5,872  6.9 %   (2019-2024: 6.3-6.6 %)
+k4r     PALSAR 2025   5,872  8.1 %   (2019-2024: 7.2-7.6 %)
+k3r     PALSAR 2025   5,872  5.0 %   (2019-2024: 5.1-5.2 %)
+
+k4r, PALSAR 2025 (rows filtered, columns unfiltered; 0 = no canopy)
+            0     C1     C2    C3     C4    all
+0           1      0      0     0      0      1
+C1          5   1124      3     0      0   1132
+C2          0     75   2169     0      2   2246
+C3          0      0    117   527     44    688
+C4          0      0    228     0   1577   1805
+all         6   1199   2517   527   1623   5872
+C1 low sparse, C2 mid sparse, C3 mid dense, C4 tall open.
+C4 loses 12.6 % (to C2), C3 loses 23 % (to C2 and C4), C2 loses 3.4 % (to C1).
+C2 grows from 2,246 to 2,517 cells (+12 %).
+
+k3r, PALSAR 2025
+            0     C1     C2     C3    all
+0           1      0      0      0      1
+C1          5   1720      0      2   1727
+C2          0     88    900    125   1113
+C3          0     75      0   2956   3031
+all         6   1883    900   3083   5872
+
+k4h, PALSAR 2025 (classes 1-4 = S1-S4)
+            0     1      2     3      4    all
+0           1     0      0     0      0      1
+1           5   940      2     0      0    947
+2           0    48   1965     0      2   2015
+3           0     0     96   494     61    651
+4           0     0    189     0   2069   2258
+all         6   988   2252   494   2132   5872
+
+DECISION RULE (fixed in the Biota plan before the run)
+not needed: median |d cover137| <= 0.01 and class change <= 3 %   -> both fail
+needed:     median d cover137 >= 0.03 or class change >= 10 %     -> neither
+=> between, but class change is 8.1 %, near the "needed" limit, at the site with the
+   most cells near class boundaries (C1 / C2 / C3 = 69 % of cells).
+
+COMPARISON WITH BIOTA TRACK
+                      Biota      South Dampier
+points ratio          1.180      1.303
+d cover137 median     -0.020     -0.018
+d p98_can median      -0.005     -0.001
+k4r changed           1.5 %      8.1 %
+k3r changed           0.9 %      5.0 %
+offset (x / y, m)     -1.0/-1.5  -2.96/-1.97
+The cover effect is the same at both sites. The class effect depends on how many cells
+are near a class boundary, and it is not predictable from Biota.
+
+PROCESSING NOTES
+- Copy: size and point count equal the N:\ file (1,459,120,086 points).
+- lasground_new64 (-wilderness, 256 m tiles, 10 m buffer) did not finish on 2 of 77 tiles
+  (425216_8035072, 425472_8033792): > 6 h each over 2 runs. The filtered cloud: <= 284 s per tile.
+  A third tile (425728_8033792) took 2.4 h. Source tiles are all class 0 (never classified).
+- Those 2 tiles were grounded by retro_2d\unf_sd_subground.py: 4 windows per tile (quarter + 20 m),
+  the same lasground command with -set_classification 0, 75-841 s per window. Each point takes the class
+  from the window whose quarter holds it, matched by point order (X / Y / Z asserted equal); the original
+  header, LAStiling VLR and reversible index are kept. Ground share 64 % and 53 %.
+  Effect: ground can differ a little near the quarter seams of these 2 tiles (2 of 77 tiles).
+- process_sites.ps1 then ran with -Cores 10; detile point count = source.
+- Gridding: all 1,241,323,487 first returns in each grid, percentile error <= 0.009 m.
+- 425728_8033792 was grounded whole (2.4 h), so it is the same as the other tiles.
+
+FILES (205 GB; G: has 185 GB free after the run)
+G:\Dampier\Dampier Lidar 2026\South Dampier\South Dampier unf\
+  south_dampier_unf.las                               copy of N:\South Dampier unf.las
+  south_dampier_unf_ground_gndthin_height.las         height cloud, unfiltered position
+  south_dampier_unf_ground_gndthin_height_shift.las   moved +2.961 / +1.969 m (old position)
+  south_dampier_unf_ground_gndthin_height_canopy_p98.tif, ..._dem_0.5m.tif, contours, tiles\
+This folder is one level below the site folder on purpose: the
+*\*_ground_gndthin_height_denoise.las globs must not find these clouds.
+
+CRS NOTE 2026-11-03
+The unf export is labelled WGS 84 / UTM 51S; the filtered export is GDA2020 / MGA 51.
+Of the -2.96 / -1.97 m shift, -0.98 / -1.52 m is the DJI Terra datum (GDA94 frame).
+The residual -1.98 / -0.45 m is not the datum (base-station coordinates? not verified).
+Reprojection is required to match grids. See G:\python\crs_audit\CHECKPOINT.md.

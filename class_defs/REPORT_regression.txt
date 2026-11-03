@@ -1,0 +1,169 @@
+REPORT — 2026 height and cover regression (PLAN_regression.md)
+Labels: Dampier 2026 (5 sites, 34,715 px) + Yawuru 2025 kept (7 areas, 4,308 px) = 39,023 px.
+RF 500, max_features 0.33, leaf 5; stratified 5-fold (outputs/folds_cover_height.json); seeds 0-2.
+Values: fold mean (fold SD, seed SD). Pooled = all 39,023 px; then per source.
+Optimistic: random K-fold under spatial autocorrelation.
+
+1. K-FOLD R2
+------------
+stack                               ALL                   SAR                    MS
+pooled      mean   0.795 (0.006, 0.000)  0.718 (0.006, 0.000)  0.754 (0.007, 0.000)
+            cover  0.811 (0.005, 0.000)  0.754 (0.005, 0.000)  0.769 (0.005, 0.000)
+Dampier     mean   0.773 (0.007, 0.000)  0.687 (0.005, 0.000)  0.734 (0.007, 0.000)
+            cover  0.775 (0.004, 0.000)  0.711 (0.005, 0.000)  0.734 (0.005, 0.000)
+Yawuru kept mean   0.879 (0.008, 0.000)  0.841 (0.011, 0.000)  0.789 (0.008, 0.000)
+            cover  0.903 (0.007, 0.000)  0.860 (0.010, 0.000)  0.847 (0.008, 0.000)
+
+1. K-FOLD RMSE (m for px mean)
+------------------------------
+stack                               ALL                   SAR                    MS
+pooled      mean   0.724 (0.014, 0.000)  0.848 (0.012, 0.000)  0.793 (0.014, 0.000)
+            cover  0.095 (0.001, 0.000)  0.109 (0.001, 0.000)  0.105 (0.001, 0.000)
+Dampier     mean   0.746 (0.014, 0.000)  0.876 (0.011, 0.000)  0.806 (0.015, 0.000)
+            cover  0.095 (0.001, 0.000)  0.108 (0.001, 0.000)  0.104 (0.001, 0.000)
+Yawuru kept mean   0.508 (0.016, 0.000)  0.583 (0.026, 0.001)  0.672 (0.009, 0.000)
+            cover  0.094 (0.004, 0.000)  0.113 (0.004, 0.000)  0.118 (0.003, 0.000)
+
+1. K-FOLD BIAS (m for px mean)
+------------------------------
+stack                                ALL                    SAR                     MS
+pooled      mean   -0.000 (0.013, 0.000)   0.003 (0.016, 0.000)   0.001 (0.011, 0.000)
+            cover  -0.001 (0.001, 0.000)  -0.001 (0.001, 0.000)  -0.000 (0.001, 0.000)
+Dampier     mean   -0.001 (0.014, 0.000)   0.003 (0.018, 0.000)  -0.012 (0.012, 0.000)
+            cover   0.000 (0.001, 0.000)   0.001 (0.001, 0.000)  -0.000 (0.001, 0.000)
+Yawuru kept mean    0.010 (0.012, 0.000)   0.001 (0.008, 0.000)   0.102 (0.014, 0.001)
+            cover  -0.009 (0.003, 0.000)  -0.012 (0.002, 0.000)  -0.001 (0.001, 0.000)
+
+1b. PAIRED GAIN (per fold, seed); real if |gain| > 2 x fold SD and > seed SD
+----------------------------------------------------------------------------
+                                   gain  fold_sd  seed_sd  real
+r2   ALL - SAR pooled      mean   0.077    0.002      0.0  True
+                           cover  0.057    0.001      0.0  True
+               Dampier     mean   0.086    0.003      0.0  True
+                           cover  0.064    0.001      0.0  True
+               Yawuru kept mean   0.038    0.010      0.0  True
+                           cover  0.043    0.006      0.0  True
+     ALL - MS  pooled      mean   0.041    0.002      0.0  True
+                           cover  0.042    0.002      0.0  True
+               Dampier     mean   0.038    0.002      0.0  True
+                           cover  0.041    0.002      0.0  True
+               Yawuru kept mean   0.090    0.007      0.0  True
+                           cover  0.056    0.006      0.0  True
+rmse ALL - SAR pooled      mean  -0.125    0.004      0.0  True
+                           cover -0.013    0.000      0.0  True
+               Dampier     mean  -0.130    0.005      0.0  True
+                           cover -0.013    0.000      0.0  True
+               Yawuru kept mean  -0.075    0.019      0.0  True
+                           cover -0.019    0.002      0.0  True
+     ALL - MS  pooled      mean  -0.069    0.003      0.0  True
+                           cover -0.010    0.000      0.0  True
+               Dampier     mean  -0.060    0.003      0.0  True
+                           cover -0.008    0.000      0.0  True
+               Yawuru kept mean  -0.163    0.013      0.0  True
+                           cover -0.024    0.002      0.0  True
+
+2. CLASS CHECK — px-mean preds -> 4 classes, cut set gmm50_k4_loc_y [0.341, 0.627, 1.682] (cuts_50cm [0.144, 0.469, 3.316]); pooled folds, mean of 3 seeds
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+                 macro_f1    f1w  worst_f1  macro_seed_sd
+pooled      ALL     0.701  0.857     0.462          0.001
+            SAR     0.673  0.839     0.446          0.001
+            MS      0.651  0.837     0.393          0.001
+Dampier     ALL     0.642  0.857     0.483          0.001
+            SAR     0.601  0.838     0.427          0.002
+            MS      0.621  0.846     0.416          0.002
+Yawuru kept ALL     0.711  0.845     0.368          0.003
+            SAR     0.682  0.826     0.328          0.001
+            MS      0.617  0.761     0.321          0.002
+
+per class P / R / F1 (c0 Bare -> c3 Forest)
+                   P0    R0    F0    P1    R1    F1    P2    R2    F2    P3    R3    F3
+pooled      ALL  0.91  0.67  0.77  0.51  0.42  0.46  0.69  0.59  0.64  0.91  0.97  0.94
+            SAR  0.90  0.62  0.74  0.48  0.42  0.45  0.65  0.53  0.58  0.90  0.96  0.93
+            MS   0.90  0.55  0.68  0.42  0.37  0.39  0.64  0.56  0.60  0.90  0.96  0.93
+Dampier     ALL  0.80  0.37  0.51  0.56  0.42  0.48  0.69  0.59  0.64  0.91  0.97  0.94
+            SAR  0.76  0.30  0.43  0.52  0.43  0.47  0.65  0.52  0.58  0.90  0.96  0.93
+            MS   0.78  0.39  0.52  0.53  0.34  0.42  0.65  0.58  0.61  0.91  0.96  0.93
+Yawuru kept ALL  0.95  0.87  0.91  0.33  0.42  0.37  0.68  0.60  0.64  0.90  0.96  0.93
+            SAR  0.94  0.85  0.89  0.30  0.37  0.33  0.63  0.55  0.59  0.89  0.96  0.92
+            MS   0.96  0.66  0.78  0.24  0.51  0.32  0.50  0.44  0.47  0.85  0.95  0.90
+
+true px per class
+                   n0    n1    n2     n3
+pooled      ALL  2313  1640  6510  28560
+Dampier     ALL   944  1401  5827  26543
+Yawuru kept ALL  1369   239   683   2017
+
+3. IMPORTANCE — permutation R2 drop by sensor (seed 0, fold mean, pooled test fold)
+-----------------------------------------------------------------------------------
+sensor        NISAR     S1     S2
+target stack                     
+cover  ALL    0.312  0.204  0.377
+       MS       NaN    NaN  1.506
+       SAR    0.529  0.462    NaN
+mean   ALL    0.540  0.020  0.509
+       MS       NaN    NaN  1.498
+       SAR    0.984  0.102    NaN
+
+top 5 impurity (seed 0, fold mean)
+ALL mean  EVI 0.198, 168_A_g0HV_dB 0.153, NDVI 0.133, 168_A_g0HH_dB 0.111, 168_A_DpRSI 0.049
+ALL cover S1_n_Pu_db 0.141, 168_A_g0HV_dB 0.121, S1_n_alpha_dp 0.105, 168_A_g0HH_dB 0.065, S1_n_DpRBI 0.055
+SAR mean  168_A_g0HV_dB 0.211, 168_A_g0HH_dB 0.170, 168_A_DpRSI 0.116, 168_A_Pu_db 0.097, 147_D_Pu_db 0.055
+SAR cover S1_n_Pu_db 0.142, 168_A_g0HV_dB 0.135, S1_n_alpha_dp 0.124, S1_n_DpRBI 0.073, 168_A_g0HH_dB 0.069
+MS  mean  EVI 0.260, NDVI 0.230, BSI 0.125, nbart_swir_3 0.116, nbart_red 0.066
+MS  cover EVI 0.205, NDVI 0.191, nbart_swir_3 0.159, nbart_red 0.101, nbart_swir_2 0.065
+
+4. MAP CHECKS
+-------------
+mean map: E:\nisar_2026\regression\height_mean_ALL.tif
+valid 64,392,072 of 64,469,255 mainland px (99.9%); no NaN; none outside the mainland
+map at the label px = model predict (asserted); in-sample, so the site check is not an accuracy
+
+distribution
+                       p0     p1     p5    p25    p50    p75    p95    p99    p100   mean
+map (all valid px)  0.042  0.139  0.190  0.463  1.436  2.429  3.866  5.798  10.235  1.625
+labels (39,023 px)  0.015  0.094  0.288  1.591  2.695  3.793  5.449  7.042  13.166  2.762
+
+per site, mean at the label px
+                                     n  label    map  map - label
+group       site                                                 
+Dampier     9 Mile                4894  2.289  2.311        0.022
+            Biota track          11612  3.786  3.798        0.012
+            Bunda Extra           3987  3.518  3.542        0.024
+            Country Downs         5206  3.283  3.241       -0.042
+            South Dampier         9016  1.571  1.555       -0.016
+Yawuru kept 20250407_govcowwell    777  1.780  1.700       -0.080
+            YA25_2                 754  2.758  2.888        0.129
+            YA25_3                 609  1.069  1.080        0.011
+            YA25_5                 305  1.559  1.588        0.029
+            YJ25_1                 615  1.177  1.219        0.042
+            YJ25_6                 634  2.934  2.843       -0.091
+            YOct25_1               614  0.234  0.234        0.000
+
+cover map: E:\nisar_2026\regression\cover137_ALL.tif
+valid 64,392,072 of 64,469,255 mainland px (99.9%); no NaN; none outside the mainland
+map at the label px = model predict (asserted); in-sample, so the site check is not an accuracy
+
+distribution
+                     p0     p1     p5    p25    p50    p75    p95    p99   p100   mean
+map (all valid px)  0.0  0.016  0.030  0.109  0.334  0.491  0.671  0.773  0.959  0.323
+labels (39,023 px)  0.0  0.000  0.063  0.336  0.502  0.638  0.818  0.914  0.999  0.480
+
+per site, mean at the label px
+                                     n  label    map  map - label
+group       site                                                 
+Dampier     9 Mile                4894  0.356  0.361        0.005
+            Biota track          11612  0.595  0.596        0.000
+            Bunda Extra           3987  0.562  0.566        0.004
+            Country Downs         5206  0.586  0.587        0.001
+            South Dampier         9016  0.361  0.356       -0.004
+Yawuru kept 20250407_govcowwell    777  0.362  0.348       -0.014
+            YA25_2                 754  0.630  0.620       -0.010
+            YA25_3                 609  0.220  0.222        0.002
+            YA25_5                 305  0.439  0.435       -0.003
+            YJ25_1                 615  0.217  0.215       -0.002
+            YJ25_6                 634  0.561  0.557       -0.003
+            YOct25_1               614  0.005  0.005        0.000
+
+5. MAP COMPARISON
+-----------------
+dropped (user 2026-11-02): ALL maps only; the K-fold tables above compare stacks

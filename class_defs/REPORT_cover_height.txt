@@ -1,0 +1,747 @@
+REPORT — cover x height regression, h = 1.37 m (Part B, PLAN_cover_height.md)
+Runs: 18 (stack x seed) of 18; stacks ['MS', 'MS+G', 'SAR', 'SAR+G', 'ALL', 'ALL+G'].
+RF 500, max_features 0.33, leaf 5; 5 random stratified folds (site x cover quintile); seeds 0-2.
+Optimistic: random K-fold under spatial autocorrelation; GLCM windows (100-110 m) overlap test px.
+Values: fold mean (fold SD, seed SD). Groups never blended.
+
+0. READING (Dampier / Yawuru kept; R2 unless stated)
+----------------------------------------------------
+| Finding                         | Value                                                         |
+|---------------------------------|---------------------------------------------------------------|
+| Best stack                      | ALL+G: mean 0.785 / 0.893; cover 0.793 / 0.913; mhi 0.717 / 0.638 |
+| GLCM gain on ALL (real)         | mean +0.012 / +0.013; cover +0.018 / +0.010; mhi +0.018 / +0.123 |
+| GLCM gain on SAR (real)         | mean +0.007 / +0.014; mhi +0.018 / +0.210; mlo +0.040 / +0.084 |
+| GLCM gain on MS (real)          | mean +0.027 / +0.044; mhi +0.049 / +0.214                      |
+| Combined vs direct mean         | no real gain: |dR2| <= 0.009 in every stack; oracle mlo no gain |
+| SAR alone (NISAR + S1)          | mean 0.687 / 0.841; SAR+G 0.693 / 0.855                        |
+| Add MS to SAR / add SAR to MS   | mean +0.086 / +0.038 (Dampier); +0.038 / +0.090 (Yawuru kept)  |
+| SAR stack permutation           | mhi: NISAR 1.21, S1 0.13; mlo: S1 1.49, NISAR 0.82; cover 0.53 / 0.46 |
+| Classes, ALL+G, kappa (Dampier) | old 0.635 / nfi 0.633 / gmm50_k4 0.609 vs XGB 0.607 / 0.614 / 0.612 |
+| Bare recall (old, nfi)          | 0.25-0.26 (ALL+G, Dampier): the regression pulls Bare up      |
+| B3b: burnt rows added           | shared rows: Dampier mean dR2 -0.000; kept mean -0.002 (not real) |
+| B3b: burnt rows                 | mean 0.754, bias -0.114 m (pred below pre-fire label, in training) |
+| B3b ALL+G                       | shared rows: Dampier mean dR2 -0.000; burnt rows mean 0.777, bias -0.091 m |
+
+- GLCM gain is optimistic: 100-110 m windows overlap test px under random K-fold.
+- Yawuru mhi has the largest fold SD (0.08 for MS); read Yawuru mhi gains as direction, not size.
+- Classes vs XGB are not paired (XGB: 39 features, no S1, own folds); +0.02-0.03 kappa for old / nfi.
+- Combining adds no skill but gives cover and mhi as separate products at the same px-mean accuracy.
+
+1. R2 — Dampier
+---------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS      0.734  0.628  0.618  0.734  0.735        0.735         0.731
+MS+G    0.770  0.677  0.693  0.761  0.764        0.764         0.761
+SAR     0.711  0.611  0.619  0.687  0.689        0.689         0.687
+SAR+G   0.727  0.629  0.660  0.693  0.695        0.695         0.693
+ALL     0.775  0.698  0.709  0.773  0.774        0.775         0.772
+ALL+G   0.793  0.717  0.739  0.785  0.784        0.784         0.782
+target                        cover    mhi    mlo   mean   comb
+fold_sd SD (max over stacks)  0.005  0.005  0.008  0.007  0.007
+seed_sd SD (max over stacks)  0.000  0.000  0.000  0.000  0.000
+
+1. RMSE — Dampier
+-----------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS      0.104  1.132  0.061  0.806  0.805        0.805         0.811
+MS+G    0.096  1.056  0.054  0.764  0.761        0.760         0.765
+SAR     0.108  1.158  0.061  0.876  0.873        0.873         0.875
+SAR+G   0.105  1.131  0.057  0.866  0.864        0.864         0.867
+ALL     0.095  1.020  0.053  0.746  0.743        0.743         0.746
+ALL+G   0.091  0.989  0.050  0.726  0.727        0.727         0.730
+
+1. BIAS — Dampier
+-----------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS     -0.000 -0.027  0.002 -0.012 -0.017       -0.022        -0.019
+MS+G   -0.000 -0.018  0.001 -0.009 -0.020       -0.025        -0.021
+SAR     0.001 -0.010  0.001  0.003 -0.008       -0.013        -0.008
+SAR+G   0.000 -0.006  0.001  0.005 -0.010       -0.015        -0.011
+ALL     0.000 -0.014  0.001 -0.001 -0.009       -0.014        -0.010
+ALL+G   0.000 -0.008  0.001 -0.001 -0.012       -0.016        -0.012
+
+1. R2 — Yawuru kept
+-------------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS      0.847  0.182  0.466  0.789  0.796        0.797         0.793
+MS+G    0.877  0.395  0.593  0.832  0.840        0.842         0.838
+SAR     0.860  0.346  0.533  0.841  0.843        0.843         0.844
+SAR+G   0.880  0.556  0.617  0.855  0.859        0.859         0.860
+ALL     0.903  0.515  0.648  0.879  0.883        0.883         0.882
+ALL+G   0.913  0.638  0.685  0.893  0.897        0.897         0.897
+target                        cover    mhi    mlo   mean   comb
+fold_sd SD (max over stacks)   0.01  0.080  0.017  0.011  0.014
+seed_sd SD (max over stacks)   0.00  0.003  0.001  0.001  0.001
+
+1. RMSE — Yawuru kept
+---------------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS      0.118  0.921  0.078  0.672  0.661        0.659         0.665
+MS+G    0.106  0.792  0.068  0.598  0.584        0.581         0.589
+SAR     0.113  0.823  0.073  0.583  0.578        0.579         0.577
+SAR+G   0.105  0.678  0.066  0.557  0.549        0.549         0.547
+ALL     0.094  0.709  0.063  0.508  0.501        0.500         0.502
+ALL+G   0.089  0.612  0.060  0.479  0.469        0.469         0.470
+
+1. BIAS — Yawuru kept
+---------------------
+target  cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack                                                               
+MS     -0.001  0.334 -0.013  0.102  0.097        0.087         0.103
+MS+G    0.001  0.251 -0.007  0.088  0.075        0.062         0.077
+SAR    -0.012  0.194 -0.002  0.001  0.006       -0.010         0.007
+SAR+G  -0.010  0.127 -0.001 -0.019 -0.014       -0.029        -0.013
+ALL    -0.009  0.200 -0.004  0.010  0.027        0.012         0.028
+ALL+G  -0.007  0.130 -0.003  0.007  0.005       -0.010         0.006
+
+2. GLCM GAIN — R2(+G) - R2(base), paired folds
+----------------------------------------------
+                                  dR2  fold_sd  seed_sd   real
+group       stack target                                      
+Dampier     MS    comb          0.028    0.001    0.000   True
+Yawuru kept MS    comb          0.045    0.012    0.000   True
+Dampier     MS    comb_lo_med   0.029    0.001    0.000   True
+Yawuru kept MS    comb_lo_med   0.045    0.013    0.000   True
+Dampier     MS    comb_lo_true  0.029    0.001    0.000   True
+Yawuru kept MS    comb_lo_true  0.045    0.013    0.000   True
+Dampier     MS    cover         0.036    0.001    0.000   True
+Yawuru kept MS    cover         0.031    0.006    0.001   True
+Dampier     MS    mean          0.027    0.002    0.000   True
+Yawuru kept MS    mean          0.044    0.006    0.000   True
+Dampier     MS    mhi           0.049    0.003    0.000   True
+Yawuru kept MS    mhi           0.214    0.079    0.002   True
+Dampier     MS    mlo           0.074    0.006    0.000   True
+Yawuru kept MS    mlo           0.127    0.024    0.001   True
+Dampier     SAR   comb          0.006    0.002    0.000   True
+Yawuru kept SAR   comb          0.016    0.005    0.000   True
+Dampier     SAR   comb_lo_med   0.006    0.002    0.000   True
+Yawuru kept SAR   comb_lo_med   0.016    0.005    0.000   True
+Dampier     SAR   comb_lo_true  0.006    0.002    0.000   True
+Yawuru kept SAR   comb_lo_true  0.016    0.005    0.000   True
+Dampier     SAR   cover         0.016    0.001    0.000   True
+Yawuru kept SAR   cover         0.020    0.003    0.000   True
+Dampier     SAR   mean          0.007    0.001    0.000   True
+Yawuru kept SAR   mean          0.014    0.003    0.000   True
+Dampier     SAR   mhi           0.018    0.002    0.000   True
+Yawuru kept SAR   mhi           0.210    0.036    0.001   True
+Dampier     SAR   mlo           0.040    0.003    0.000   True
+Yawuru kept SAR   mlo           0.084    0.019    0.002   True
+Dampier     ALL   comb          0.010    0.001    0.000   True
+Yawuru kept ALL   comb          0.014    0.003    0.001   True
+Dampier     ALL   comb_lo_med   0.010    0.001    0.000   True
+Yawuru kept ALL   comb_lo_med   0.014    0.003    0.001   True
+Dampier     ALL   comb_lo_true  0.010    0.001    0.000   True
+Yawuru kept ALL   comb_lo_true  0.015    0.003    0.001   True
+Dampier     ALL   cover         0.018    0.001    0.000   True
+Yawuru kept ALL   cover         0.010    0.002    0.000   True
+Dampier     ALL   mean          0.012    0.001    0.000   True
+Yawuru kept ALL   mean          0.013    0.003    0.000   True
+Dampier     ALL   mhi           0.018    0.002    0.000   True
+Yawuru kept ALL   mhi           0.123    0.012    0.001   True
+Dampier     ALL   mlo           0.030    0.004    0.000   True
+Yawuru kept ALL   mlo           0.037    0.019    0.001  False
+
+3. COMBINED - DIRECT mean, R2, paired folds (comb_lo_true uses the true mlo: oracle)
+------------------------------------------------------------------------------------
+                                  dR2  fold_sd  seed_sd   real
+group       variant      stack                                
+Dampier     comb         ALL    0.002    0.002    0.000  False
+Yawuru kept comb         ALL    0.004    0.006    0.000  False
+Dampier     comb         ALL+G -0.001    0.001    0.000  False
+Yawuru kept comb         ALL+G  0.005    0.004    0.000  False
+Dampier     comb         MS     0.001    0.001    0.000  False
+Yawuru kept comb         MS     0.007    0.003    0.000   True
+Dampier     comb         MS+G   0.002    0.001    0.000   True
+Yawuru kept comb         MS+G   0.008    0.007    0.001  False
+Dampier     comb         SAR    0.002    0.001    0.000   True
+Yawuru kept comb         SAR    0.003    0.004    0.000  False
+Dampier     comb         SAR+G  0.001    0.001    0.000  False
+Yawuru kept comb         SAR+G  0.004    0.003    0.001  False
+Dampier     comb_lo_med  ALL    0.002    0.002    0.000  False
+Yawuru kept comb_lo_med  ALL    0.004    0.005    0.000  False
+Dampier     comb_lo_med  ALL+G -0.000    0.001    0.000  False
+Yawuru kept comb_lo_med  ALL+G  0.004    0.004    0.000  False
+Dampier     comb_lo_med  MS     0.001    0.001    0.000  False
+Yawuru kept comb_lo_med  MS     0.008    0.003    0.000   True
+Dampier     comb_lo_med  MS+G   0.003    0.001    0.000   True
+Yawuru kept comb_lo_med  MS+G   0.009    0.007    0.001  False
+Dampier     comb_lo_med  SAR    0.002    0.001    0.000  False
+Yawuru kept comb_lo_med  SAR    0.002    0.004    0.000  False
+Dampier     comb_lo_med  SAR+G  0.002    0.001    0.000  False
+Yawuru kept comb_lo_med  SAR+G  0.004    0.003    0.001  False
+Dampier     comb_lo_true ALL   -0.000    0.002    0.000  False
+Yawuru kept comb_lo_true ALL    0.003    0.005    0.000  False
+Dampier     comb_lo_true ALL+G -0.002    0.001    0.000   True
+Yawuru kept comb_lo_true ALL+G  0.004    0.003    0.000  False
+Dampier     comb_lo_true MS    -0.003    0.001    0.000   True
+Yawuru kept comb_lo_true MS     0.004    0.003    0.000  False
+Dampier     comb_lo_true MS+G  -0.001    0.001    0.000  False
+Yawuru kept comb_lo_true MS+G   0.005    0.006    0.001  False
+Dampier     comb_lo_true SAR    0.000    0.001    0.000  False
+Yawuru kept comb_lo_true SAR    0.004    0.004    0.000  False
+Dampier     comb_lo_true SAR+G -0.000    0.001    0.000  False
+Yawuru kept comb_lo_true SAR+G  0.005    0.002    0.001   True
+
+4. SOURCE CONTRIBUTION BOTH WAYS — R2(ALL) - R2(one source)
+-----------------------------------------------------------
+                                        dR2  fold_sd  real
+group       added       target                            
+Dampier     SAR to MS   comb          0.039    0.002  True
+Yawuru kept SAR to MS   comb          0.087    0.012  True
+Dampier     SAR to MS   comb_lo_med   0.039    0.002  True
+Yawuru kept SAR to MS   comb_lo_med   0.086    0.012  True
+Dampier     SAR to MS   comb_lo_true  0.041    0.002  True
+Yawuru kept SAR to MS   comb_lo_true  0.089    0.012  True
+Dampier     SAR to MS   cover         0.041    0.002  True
+Yawuru kept SAR to MS   cover         0.056    0.006  True
+Dampier     SAR to MS   mean          0.038    0.002  True
+Yawuru kept SAR to MS   mean          0.090    0.007  True
+Dampier     SAR to MS   mhi           0.070    0.005  True
+Yawuru kept SAR to MS   mhi           0.334    0.079  True
+Dampier     SAR to MS   mlo           0.091    0.002  True
+Yawuru kept SAR to MS   mlo           0.182    0.018  True
+Dampier     MS to SAR   comb          0.086    0.002  True
+Yawuru kept MS to SAR   comb          0.039    0.007  True
+Dampier     MS to SAR   comb_lo_med   0.086    0.002  True
+Yawuru kept MS to SAR   comb_lo_med   0.040    0.007  True
+Dampier     MS to SAR   comb_lo_true  0.085    0.002  True
+Yawuru kept MS to SAR   comb_lo_true  0.038    0.007  True
+Dampier     MS to SAR   cover         0.064    0.001  True
+Yawuru kept MS to SAR   cover         0.043    0.006  True
+Dampier     MS to SAR   mean          0.086    0.003  True
+Yawuru kept MS to SAR   mean          0.038    0.010  True
+Dampier     MS to SAR   mhi           0.087    0.003  True
+Yawuru kept MS to SAR   mhi           0.169    0.051  True
+Dampier     MS to SAR   mlo           0.090    0.006  True
+Yawuru kept MS to SAR   mlo           0.115    0.016  True
+Dampier     SAR to MS+G comb          0.020    0.001  True
+Yawuru kept SAR to MS+G comb          0.057    0.004  True
+Dampier     SAR to MS+G comb_lo_med   0.020    0.001  True
+Yawuru kept SAR to MS+G comb_lo_med   0.055    0.005  True
+Dampier     SAR to MS+G comb_lo_true  0.021    0.002  True
+Yawuru kept SAR to MS+G comb_lo_true  0.059    0.005  True
+Dampier     SAR to MS+G cover         0.023    0.002  True
+Yawuru kept SAR to MS+G cover         0.036    0.003  True
+Dampier     SAR to MS+G mean          0.023    0.001  True
+Yawuru kept SAR to MS+G mean          0.060    0.003  True
+Dampier     SAR to MS+G mhi           0.040    0.002  True
+Yawuru kept SAR to MS+G mhi           0.243    0.039  True
+Dampier     SAR to MS+G mlo           0.046    0.003  True
+Yawuru kept SAR to MS+G mlo           0.092    0.015  True
+Dampier     MS to SAR+G comb          0.089    0.001  True
+Yawuru kept MS to SAR+G comb          0.038    0.005  True
+Dampier     MS to SAR+G comb_lo_med   0.089    0.001  True
+Yawuru kept MS to SAR+G comb_lo_med   0.038    0.005  True
+Dampier     MS to SAR+G comb_lo_true  0.089    0.001  True
+Yawuru kept MS to SAR+G comb_lo_true  0.037    0.005  True
+Dampier     MS to SAR+G cover         0.067    0.001  True
+Yawuru kept MS to SAR+G cover         0.033    0.004  True
+Dampier     MS to SAR+G mean          0.091    0.002  True
+Yawuru kept MS to SAR+G mean          0.038    0.007  True
+Dampier     MS to SAR+G mhi           0.087    0.003  True
+Yawuru kept MS to SAR+G mhi           0.082    0.012  True
+Dampier     MS to SAR+G mlo           0.079    0.002  True
+Yawuru kept MS to SAR+G mlo           0.068    0.010  True
+
+5. CLASSES from predicted mean (direct = mean model, comb = combined); pooled folds, mean of seeds
+--------------------------------------------------------------------------------------------------
+XGB K-fold kappa (CHECKPOINT, 39 features, Dampier): old 0.607, nfi 0.614, gmm50_k4 0.612
+                                 kappa     ba     oa    f1w  kappa_seed_sd
+group       cutset   var  stack                                           
+Dampier     gmm50_k4 comb ALL    0.601  0.690  0.728  0.728          0.002
+                          ALL+G  0.606  0.692  0.732  0.732          0.000
+                          MS     0.566  0.665  0.705  0.704          0.001
+                          MS+G   0.586  0.679  0.719  0.718          0.001
+                          SAR    0.524  0.642  0.677  0.676          0.001
+                          SAR+G  0.529  0.645  0.680  0.679          0.001
+                     mean ALL    0.599  0.687  0.728  0.727          0.000
+                          ALL+G  0.609  0.692  0.735  0.734          0.001
+                          MS     0.565  0.662  0.705  0.704          0.001
+                          MS+G   0.586  0.676  0.720  0.719          0.001
+                          SAR    0.522  0.640  0.676  0.675          0.000
+                          SAR+G  0.528  0.643  0.680  0.679          0.000
+            nfi      comb ALL    0.632  0.612  0.802  0.799          0.001
+                          ALL+G  0.635  0.608  0.803  0.800          0.001
+                          MS     0.597  0.593  0.784  0.780          0.000
+                          MS+G   0.619  0.594  0.795  0.792          0.002
+                          SAR    0.567  0.537  0.770  0.763          0.000
+                          SAR+G  0.568  0.552  0.770  0.764          0.001
+                     mean ALL    0.627  0.608  0.800  0.796          0.001
+                          ALL+G  0.633  0.609  0.803  0.799          0.000
+                          MS     0.595  0.588  0.783  0.779          0.001
+                          MS+G   0.614  0.589  0.794  0.789          0.000
+                          SAR    0.566  0.539  0.770  0.763          0.001
+                          SAR+G  0.570  0.549  0.772  0.765          0.000
+            old      comb ALL    0.634  0.613  0.806  0.802          0.000
+                          ALL+G  0.636  0.608  0.806  0.803          0.001
+                          MS     0.601  0.594  0.789  0.784          0.001
+                          MS+G   0.619  0.593  0.798  0.794          0.000
+                          SAR    0.570  0.539  0.774  0.767          0.001
+                          SAR+G  0.570  0.552  0.774  0.768          0.001
+                     mean ALL    0.632  0.609  0.805  0.801          0.001
+                          ALL+G  0.635  0.609  0.806  0.802          0.001
+                          MS     0.599  0.590  0.788  0.783          0.001
+                          MS+G   0.615  0.588  0.797  0.792          0.001
+                          SAR    0.568  0.539  0.774  0.767          0.001
+                          SAR+G  0.571  0.549  0.776  0.769          0.000
+Yawuru kept gmm50_k4 comb ALL    0.705  0.725  0.794  0.793          0.003
+                          ALL+G  0.718  0.726  0.805  0.802          0.001
+                          MS     0.614  0.650  0.731  0.730          0.002
+                          MS+G   0.660  0.686  0.764  0.761          0.001
+                          SAR    0.656  0.666  0.762  0.756          0.001
+                          SAR+G  0.662  0.663  0.767  0.759          0.001
+                     mean ALL    0.695  0.709  0.788  0.785          0.000
+                          ALL+G  0.707  0.717  0.797  0.793          0.003
+                          MS     0.610  0.645  0.729  0.727          0.001
+                          MS+G   0.653  0.681  0.759  0.756          0.001
+                          SAR    0.659  0.669  0.765  0.759          0.004
+                          SAR+G  0.668  0.674  0.771  0.764          0.004
+            nfi      comb ALL    0.695  0.744  0.780  0.778          0.001
+                          ALL+G  0.703  0.750  0.786  0.784          0.001
+                          MS     0.530  0.597  0.665  0.642          0.001
+                          MS+G   0.616  0.676  0.725  0.718          0.001
+                          SAR    0.663  0.719  0.757  0.755          0.002
+                          SAR+G  0.669  0.725  0.761  0.760          0.002
+                     mean ALL    0.689  0.742  0.776  0.774          0.000
+                          ALL+G  0.703  0.752  0.785  0.784          0.002
+                          MS     0.527  0.596  0.663  0.642          0.001
+                          MS+G   0.608  0.670  0.719  0.712          0.003
+                          SAR    0.662  0.720  0.756  0.754          0.001
+                          SAR+G  0.674  0.729  0.765  0.763          0.001
+            old      comb ALL    0.700  0.748  0.783  0.780          0.001
+                          ALL+G  0.705  0.752  0.787  0.784          0.002
+                          MS     0.542  0.607  0.674  0.650          0.002
+                          MS+G   0.625  0.683  0.731  0.723          0.001
+                          SAR    0.667  0.723  0.759  0.757          0.003
+                          SAR+G  0.674  0.729  0.765  0.763          0.002
+                     mean ALL    0.693  0.745  0.778  0.776          0.002
+                          ALL+G  0.709  0.757  0.790  0.788          0.001
+                          MS     0.539  0.605  0.671  0.649          0.001
+                          MS+G   0.618  0.679  0.726  0.718          0.001
+                          SAR    0.667  0.724  0.760  0.757          0.001
+                          SAR+G  0.681  0.735  0.769  0.767          0.000
+
+5b. PER-CLASS P / R / F1 (c0 -> c3), stack ALL+G
+------------------------------------------------
+                             P0    R0    F0    P1    R1    F1    P2    R2    F2    P3    R3    F3
+group       cutset   var                                                                         
+Dampier     gmm50_k4 comb  0.89  0.57  0.70  0.69  0.67  0.68  0.69  0.82  0.75  0.82  0.71  0.76
+                     mean  0.90  0.57  0.70  0.70  0.66  0.68  0.69  0.83  0.75  0.83  0.71  0.76
+            nfi      comb  0.94  0.25  0.39  0.83  0.62  0.71  0.60  0.65  0.62  0.88  0.92  0.90
+                     mean  0.94  0.26  0.41  0.84  0.61  0.70  0.60  0.65  0.63  0.87  0.92  0.90
+            old      comb  0.94  0.25  0.39  0.84  0.61  0.71  0.61  0.65  0.63  0.88  0.92  0.90
+                     mean  0.94  0.26  0.41  0.84  0.60  0.70  0.61  0.65  0.63  0.87  0.92  0.90
+Yawuru kept gmm50_k4 comb  0.97  0.93  0.95  0.71  0.63  0.67  0.69  0.87  0.77  0.77  0.47  0.59
+                     mean  0.96  0.93  0.94  0.70  0.61  0.65  0.68  0.86  0.76  0.75  0.47  0.58
+            nfi      comb  0.99  0.60  0.75  0.77  0.86  0.81  0.62  0.65  0.64  0.83  0.89  0.86
+                     mean  0.97  0.63  0.76  0.77  0.85  0.81  0.62  0.63  0.63  0.83  0.89  0.86
+            old      comb  0.99  0.60  0.75  0.76  0.86  0.81  0.64  0.65  0.64  0.83  0.90  0.86
+                     mean  0.97  0.63  0.76  0.77  0.86  0.81  0.64  0.65  0.64  0.83  0.90  0.86
+confusion ALL+G old comb Dampier (rows true c0..c3, seed 0):
+[[   92   181    55    49]
+ [    5  3006  1588   286]
+ [    0   390  5310  2441]
+ [    0    17  1703 19592]]
+confusion ALL+G nfi comb Dampier (rows true c0..c3, seed 0):
+[[   92   186    51    48]
+ [    5  3235  1647   306]
+ [    0   441  5192  2408]
+ [    0    19  1717 19368]]
+confusion ALL+G gmm50_k4 comb Dampier (rows true c0..c3, seed 0):
+[[ 1781  1061   227    41]
+ [  209  5300  2331    73]
+ [    2  1301 11705  1338]
+ [    0    12  2688  6646]]
+confusion ALL+G old comb Yawuru kept (rows true c0..c3, seed 0):
+[[ 445  289    3    0]
+ [   4 1070  161    8]
+ [   0   46  555  254]
+ [   0    0  153 1320]]
+confusion ALL+G nfi comb Yawuru kept (rows true c0..c3, seed 0):
+[[ 445  289    3    0]
+ [   4 1102  174    7]
+ [   0   41  543  248]
+ [   0    1  156 1295]]
+confusion ALL+G gmm50_k4 comb Yawuru kept (rows true c0..c3, seed 0):
+[[1595  127    3    0]
+ [  55  552  272    0]
+ [   0   97 1112   62]
+ [   0    0  223  210]]
+
+5b. PER-CLASS P / R / F1 (c0 -> c3), stack SAR+G
+------------------------------------------------
+                             P0    R0    F0    P1    R1    F1    P2    R2    F2    P3    R3    F3
+group       cutset   var                                                                         
+Dampier     gmm50_k4 comb  0.89  0.55  0.68  0.66  0.58  0.62  0.64  0.75  0.69  0.73  0.69  0.71
+                     mean  0.89  0.54  0.68  0.66  0.58  0.62  0.64  0.76  0.69  0.73  0.69  0.71
+            nfi      comb  0.94  0.17  0.28  0.80  0.57  0.67  0.55  0.57  0.56  0.85  0.91  0.88
+                     mean  0.95  0.15  0.26  0.81  0.56  0.66  0.55  0.57  0.56  0.85  0.91  0.88
+            old      comb  0.94  0.17  0.28  0.81  0.56  0.66  0.56  0.57  0.56  0.85  0.91  0.88
+                     mean  0.95  0.15  0.26  0.81  0.56  0.66  0.56  0.57  0.57  0.85  0.91  0.88
+Yawuru kept gmm50_k4 comb  0.96  0.91  0.93  0.64  0.56  0.60  0.64  0.88  0.74  0.76  0.31  0.44
+                     mean  0.96  0.91  0.93  0.64  0.54  0.59  0.65  0.87  0.74  0.77  0.37  0.50
+            nfi      comb  0.98  0.59  0.74  0.75  0.83  0.79  0.57  0.60  0.58  0.81  0.88  0.84
+                     mean  0.97  0.62  0.76  0.76  0.83  0.79  0.57  0.58  0.58  0.81  0.88  0.85
+            old      comb  0.98  0.59  0.74  0.75  0.84  0.79  0.59  0.60  0.60  0.82  0.88  0.85
+                     mean  0.97  0.62  0.76  0.75  0.84  0.79  0.60  0.59  0.60  0.82  0.89  0.85
+confusion SAR+G old comb Dampier (rows true c0..c3, seed 0):
+[[   64   209    53    51]
+ [    4  2738  1772   371]
+ [    0   424  4686  3031]
+ [    0    21  1885 19406]]
+confusion SAR+G nfi comb Dampier (rows true c0..c3, seed 0):
+[[   64   210    53    50]
+ [    4  2950  1831   408]
+ [    0   477  4603  2961]
+ [    0    26  1947 19131]]
+confusion SAR+G gmm50_k4 comb Dampier (rows true c0..c3, seed 0):
+[[ 1701  1080   292    37]
+ [  211  4622  2962   118]
+ [    4  1341 10781  2220]
+ [    0    19  2847  6480]]
+confusion SAR+G old comb Yawuru kept (rows true c0..c3, seed 0):
+[[ 437  295    5    0]
+ [   9 1046  178   10]
+ [   0   54  519  282]
+ [   0    6  172 1295]]
+confusion SAR+G nfi comb Yawuru kept (rows true c0..c3, seed 0):
+[[ 437  296    4    0]
+ [   9 1071  195   12]
+ [   0   55  499  278]
+ [   0    4  172 1276]]
+confusion SAR+G gmm50_k4 comb Yawuru kept (rows true c0..c3, seed 0):
+[[1562  158    5    0]
+ [  61  488  329    1]
+ [   0  112 1117   42]
+ [   0    5  294  134]]
+
+6. IMPORTANCE — permutation R2 drop by group (seed 0, fold mean)
+----------------------------------------------------------------
+name             S2  S2 GLCM  NISAR     S1  NISAR GLCM  S1 GLCM
+stack target                                                   
+MS    cover   1.506      NaN    NaN    NaN         NaN      NaN
+      mhi     1.214      NaN    NaN    NaN         NaN      NaN
+      mlo     1.136      NaN    NaN    NaN         NaN      NaN
+      mean    1.498      NaN    NaN    NaN         NaN      NaN
+MS+G  cover   1.138    0.225    NaN    NaN         NaN      NaN
+      mhi     0.819    0.320    NaN    NaN         NaN      NaN
+      mlo     0.480    0.546    NaN    NaN         NaN      NaN
+      mean    1.308    0.124    NaN    NaN         NaN      NaN
+SAR   cover     NaN      NaN  0.529  0.462         NaN      NaN
+      mhi       NaN      NaN  1.209  0.132         NaN      NaN
+      mlo       NaN      NaN  0.816  1.489         NaN      NaN
+      mean      NaN      NaN  0.984  0.102         NaN      NaN
+SAR+G cover     NaN      NaN  0.369  0.264       0.091    0.087
+      mhi       NaN      NaN  0.546  0.078       0.364    0.038
+      mlo       NaN      NaN  0.561  0.642       0.222    0.329
+      mean      NaN      NaN  0.618  0.046       0.109    0.021
+ALL   cover   0.377      NaN  0.312  0.204         NaN      NaN
+      mhi     0.418      NaN  0.849  0.119         NaN      NaN
+      mlo     0.604      NaN  0.587  0.522         NaN      NaN
+      mean    0.509      NaN  0.540  0.020         NaN      NaN
+ALL+G cover   0.311    0.091  0.232  0.113       0.053    0.041
+      mhi     0.319    0.145  0.360  0.025       0.189    0.011
+      mlo     0.259    0.408  0.225  0.140       0.122    0.054
+      mean    0.491    0.050  0.348  0.006       0.050    0.005
+
+6b. IMPORTANCE — top 5 impurity (seed 0, fold mean)
+---------------------------------------------------
+  MS     cover EVI 0.205, NDVI 0.191, nbart_swir_3 0.159, nbart_red 0.101, nbart_swir_2 0.065
+  MS     mhi   BSI 0.182, EVI 0.168, NDVI 0.142, nbart_swir_3 0.104, nbart_blue 0.067
+  MS     mlo   nbart_swir_3 0.193, nbart_blue 0.118, nbart_red 0.092, nbart_green 0.085, NDVI 0.078
+  MS     mean  EVI 0.260, NDVI 0.230, BSI 0.125, nbart_swir_3 0.116, nbart_red 0.066
+  MS+G   cover EVI 0.182, NDVI 0.163, nbart_swir_3 0.095, glcm_NDVI_mean 0.089, nbart_red 0.050
+  MS+G   mhi   EVI 0.148, BSI 0.147, NDVI 0.108, glcm_NDVI_mean 0.063, nbart_swir_3 0.040
+  MS+G   mlo   glcm_nbart_red_dissimilarity 0.102, glcm_nbart_red_homogeneity 0.081, nbart_swir_3 0.071, glcm_nbart_red_contrast 0.071, nbart_blue 0.057
+  MS+G   mean  EVI 0.249, NDVI 0.211, glcm_NDVI_mean 0.096, BSI 0.071, nbart_swir_3 0.068
+  SAR    cover S1_n_Pu_db 0.142, 168_A_g0HV_dB 0.135, S1_n_alpha_dp 0.124, S1_n_DpRBI 0.073, 168_A_g0HH_dB 0.069
+  SAR    mhi   168_A_g0HH_dB 0.169, 147_D_DpRSI 0.099, 168_A_Pd_db 0.087, 147_D_Pd_db 0.067, 147_D_g0HH_dB 0.052
+  SAR    mlo   S1_n_Pu_db 0.136, 147_D_DpRSI 0.065, S1_n_DpRSI 0.063, S1_n_alpha_dp 0.056, 147_D_Pd_db 0.052
+  SAR    mean  168_A_g0HV_dB 0.211, 168_A_g0HH_dB 0.170, 168_A_DpRSI 0.116, 168_A_Pu_db 0.097, 147_D_Pu_db 0.055
+  SAR+G  cover glcm_S1_VH_dB_mean 0.122, S1_n_Pu_db 0.122, 168_A_g0HV_dB 0.107, S1_n_alpha_dp 0.091, 168_A_g0HH_dB 0.062
+  SAR+G  mhi   glcm_147_D_g0HH_dB_mean 0.130, 168_A_g0HH_dB 0.117, glcm_168_A_g0HH_dB_mean 0.076, 147_D_DpRSI 0.054, 168_A_Pd_db 0.041
+  SAR+G  mlo   glcm_S1_VH_dB_mean 0.112, S1_n_Pu_db 0.089, 147_D_DpRSI 0.052, glcm_147_D_g0HH_dB_mean 0.041, S1_n_DpRSI 0.037
+  SAR+G  mean  168_A_g0HV_dB 0.204, 168_A_g0HH_dB 0.130, glcm_168_A_g0HV_dB_mean 0.103, 168_A_DpRSI 0.070, 168_A_Pu_db 0.057
+  ALL    cover S1_n_Pu_db 0.141, 168_A_g0HV_dB 0.121, S1_n_alpha_dp 0.105, 168_A_g0HH_dB 0.065, S1_n_DpRBI 0.055
+  ALL    mhi   168_A_g0HH_dB 0.143, 147_D_DpRSI 0.093, 168_A_Pd_db 0.068, EVI 0.061, 147_D_Pd_db 0.053
+  ALL    mlo   nbart_swir_3 0.113, S1_n_Pu_db 0.077, nbart_blue 0.075, nbart_green 0.048, nbart_red_edge_2 0.046
+  ALL    mean  EVI 0.198, 168_A_g0HV_dB 0.153, NDVI 0.133, 168_A_g0HH_dB 0.111, 168_A_DpRSI 0.049
+  ALL+G  cover 168_A_g0HV_dB 0.107, glcm_S1_VH_dB_mean 0.103, S1_n_Pu_db 0.086, S1_n_alpha_dp 0.084, 168_A_g0HH_dB 0.054
+  ALL+G  mhi   168_A_g0HH_dB 0.113, glcm_147_D_g0HH_dB_mean 0.101, glcm_168_A_g0HH_dB_mean 0.057, 147_D_DpRSI 0.055, EVI 0.050
+  ALL+G  mlo   glcm_nbart_red_dissimilarity 0.096, glcm_nbart_red_homogeneity 0.067, glcm_nbart_red_contrast 0.066, nbart_swir_3 0.048, nbart_blue 0.032
+  ALL+G  mean  EVI 0.196, 168_A_g0HV_dB 0.148, NDVI 0.120, 168_A_g0HH_dB 0.087, glcm_168_A_g0HV_dB_mean 0.056
+
+7. PER SITE (descriptive), stack ALL+G, RMSE / bias, mean of seeds
+------------------------------------------------------------------
+                                  rmse                        bias                     
+target                            comb  cover   mean    mhi   comb  cover   mean    mhi
+group       site                                                                       
+Dampier     9 Mile               0.684  0.087  0.690  0.982 -0.022  0.008  0.025 -0.055
+            Biota track          0.803  0.089  0.798  1.020  0.012  0.000  0.017  0.016
+            Bunda Extra          0.870  0.116  0.878  0.934  0.009  0.005  0.032  0.004
+            Country Downs        0.830  0.107  0.825  1.091 -0.052 -0.001 -0.061 -0.085
+            South Dampier        0.467  0.073  0.467  0.908 -0.023 -0.006 -0.016  0.027
+Yawuru kept 20250407_govcowwell  0.517  0.108  0.521  0.625 -0.103 -0.023 -0.119  0.069
+            YA25_2               0.583  0.103  0.603  0.726  0.152 -0.013  0.203  0.362
+            YA25_3               0.405  0.092  0.399  0.459  0.019  0.005  0.025 -0.010
+            YA25_5               0.385  0.108  0.435  0.534  0.082  0.005  0.084  0.225
+            YJ25_1               0.440  0.080  0.438  0.735  0.060 -0.002  0.049  0.431
+            YJ25_6               0.588  0.084  0.604  0.510 -0.136 -0.007 -0.162 -0.123
+            YOct25_1             0.043  0.013  0.043  1.342  0.001  0.000  0.001 -0.459
+
+7b. Yawuru kept split: S2-flag sites (govcowwell, YA25_3) vs other, R2 (descriptive)
+------------------------------------------------------------------------------------
+group         kept: S2 flag  kept: other
+stack target                            
+ALL+G cover           0.864        0.929
+      mhi             0.711        0.590
+      mlo             0.550        0.704
+      mean            0.882        0.895
+      comb            0.882        0.901
+
+8. B3b — burnt areas added back (stacks ['ALL', 'ALL+G']); all 43,134 rows, same folds
+--------------------------------------------------------------------------------------
+Shared-row test folds asserted equal to B3. Burnt rows are fitted (random K-fold).
+
+8a. B3b R2 per group
+--------------------
+target              cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack group                                                                     
+ALL   Dampier       0.773  0.698  0.707  0.772  0.773        0.774         0.771
+      Yawuru burnt  0.795  0.754  0.679  0.754  0.762        0.751         0.762
+      Yawuru kept   0.900  0.496  0.632  0.877  0.882        0.883         0.881
+ALL+G Dampier       0.791  0.717  0.737  0.784  0.783        0.784         0.782
+      Yawuru burnt  0.820  0.775  0.714  0.777  0.783        0.774         0.783
+      Yawuru kept   0.911  0.627  0.677  0.892  0.897        0.898         0.897
+
+8a. B3b RMSE per group
+----------------------
+target              cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack group                                                                     
+ALL   Dampier       0.096  1.020  0.053  0.747  0.745        0.744         0.748
+      Yawuru burnt  0.099  0.766  0.071  0.548  0.539        0.551         0.539
+      Yawuru kept   0.096  0.723  0.065  0.513  0.502        0.500         0.503
+ALL+G Dampier       0.092  0.988  0.050  0.726  0.728        0.728         0.731
+      Yawuru burnt  0.093  0.733  0.067  0.522  0.515        0.525         0.514
+      Yawuru kept   0.090  0.622  0.060  0.481  0.469        0.467         0.469
+
+8a. B3b BIAS per group
+----------------------
+target              cover    mhi    mlo   mean   comb  comb_lo_med  comb_lo_true
+stack group                                                                     
+ALL   Dampier       0.002 -0.009  0.002  0.008 -0.001       -0.002        -0.002
+      Yawuru burnt -0.019 -0.075 -0.013 -0.114 -0.111       -0.175        -0.104
+      Yawuru kept  -0.003  0.240 -0.001  0.044  0.059        0.049         0.059
+ALL+G Dampier       0.001 -0.003  0.002  0.007 -0.005       -0.006        -0.007
+      Yawuru burnt -0.015 -0.063 -0.013 -0.091 -0.089       -0.152        -0.082
+      Yawuru kept  -0.001  0.159  0.000  0.035  0.033        0.022         0.032
+
+8b. B3b - B3 on shared rows, R2 (paired folds)
+----------------------------------------------
+                                  dr2  fold_sd  seed_sd   real
+stack group       target                                      
+ALL   Dampier     comb         -0.001    0.001    0.000  False
+                  comb_lo_med  -0.001    0.001    0.000  False
+                  comb_lo_true -0.001    0.001    0.000  False
+                  cover        -0.002    0.001    0.000   True
+                  mean         -0.000    0.001    0.000  False
+                  mhi          -0.000    0.001    0.000  False
+                  mlo          -0.003    0.001    0.000   True
+      Yawuru kept comb         -0.001    0.002    0.000  False
+                  comb_lo_med   0.000    0.002    0.000  False
+                  comb_lo_true -0.001    0.002    0.000  False
+                  cover        -0.003    0.001    0.000   True
+                  mean         -0.002    0.002    0.000  False
+                  mhi          -0.019    0.012    0.002  False
+                  mlo          -0.017    0.008    0.001   True
+ALL+G Dampier     comb         -0.001    0.000    0.000  False
+                  comb_lo_med  -0.001    0.000    0.000  False
+                  comb_lo_true -0.001    0.000    0.000  False
+                  cover        -0.002    0.001    0.000   True
+                  mean         -0.000    0.001    0.000  False
+                  mhi           0.000    0.001    0.000  False
+                  mlo          -0.002    0.001    0.000   True
+      Yawuru kept comb          0.000    0.002    0.001  False
+                  comb_lo_med   0.001    0.002    0.001  False
+                  comb_lo_true  0.000    0.002    0.001  False
+                  cover        -0.002    0.001    0.000  False
+                  mean         -0.001    0.002    0.000  False
+                  mhi          -0.011    0.008    0.002  False
+                  mlo          -0.008    0.007    0.001  False
+
+8b. B3b - B3 on shared rows, RMSE (paired folds)
+------------------------------------------------
+                                drmse  fold_sd  seed_sd   real
+stack group       target                                      
+ALL   Dampier     comb          0.002    0.001    0.000  False
+                  comb_lo_med   0.002    0.001    0.000  False
+                  comb_lo_true  0.002    0.001    0.000  False
+                  cover         0.001    0.000    0.000   True
+                  mean          0.001    0.001    0.000  False
+                  mhi           0.000    0.001    0.000  False
+                  mlo           0.000    0.000    0.000   True
+      Yawuru kept comb          0.002    0.005    0.001  False
+                  comb_lo_med   0.000    0.005    0.001  False
+                  comb_lo_true  0.002    0.005    0.001  False
+                  cover         0.002    0.001    0.000   True
+                  mean          0.005    0.005    0.001  False
+                  mhi           0.014    0.009    0.002  False
+                  mlo           0.001    0.001    0.000   True
+ALL+G Dampier     comb          0.001    0.001    0.000  False
+                  comb_lo_med   0.001    0.001    0.000  False
+                  comb_lo_true  0.001    0.001    0.000  False
+                  cover         0.000    0.000    0.000   True
+                  mean          0.000    0.001    0.000  False
+                  mhi          -0.000    0.001    0.000  False
+                  mlo           0.000    0.000    0.000   True
+      Yawuru kept comb         -0.000    0.005    0.002  False
+                  comb_lo_med  -0.002    0.005    0.002  False
+                  comb_lo_true -0.000    0.005    0.002  False
+                  cover         0.001    0.001    0.000  False
+                  mean          0.002    0.005    0.001  False
+                  mhi           0.010    0.007    0.001  False
+                  mlo           0.001    0.001    0.000  False
+
+8c. B3b classes per group (pooled folds, mean of seeds)
+-------------------------------------------------------
+                                  kappa     ba     oa    f1w  kappa_seed_sd
+group        cutset   var  stack                                           
+Dampier      gmm50_k4 comb ALL    0.596  0.683  0.726  0.725          0.001
+                           ALL+G  0.605  0.688  0.732  0.731          0.001
+                      mean ALL    0.596  0.681  0.727  0.725          0.001
+                           ALL+G  0.608  0.688  0.734  0.733          0.000
+             nfi      comb ALL    0.628  0.605  0.800  0.796          0.001
+                           ALL+G  0.632  0.602  0.802  0.799          0.001
+                      mean ALL    0.626  0.601  0.801  0.796          0.000
+                           ALL+G  0.633  0.601  0.804  0.799          0.000
+             old      comb ALL    0.630  0.606  0.805  0.800          0.000
+                           ALL+G  0.633  0.602  0.805  0.801          0.000
+                      mean ALL    0.629  0.602  0.805  0.800          0.000
+                           ALL+G  0.635  0.600  0.807  0.802          0.001
+Yawuru burnt gmm50_k4 comb ALL    0.575  0.508  0.754  0.727          0.001
+                           ALL+G  0.590  0.508  0.764  0.734          0.001
+                      mean ALL    0.573  0.511  0.753  0.727          0.002
+                           ALL+G  0.588  0.507  0.763  0.733          0.002
+             nfi      comb ALL    0.642  0.568  0.764  0.768          0.000
+                           ALL+G  0.665  0.579  0.779  0.783          0.001
+                      mean ALL    0.632  0.563  0.757  0.762          0.002
+                           ALL+G  0.658  0.576  0.775  0.779          0.000
+             old      comb ALL    0.637  0.564  0.763  0.766          0.000
+                           ALL+G  0.652  0.570  0.773  0.776          0.003
+                      mean ALL    0.627  0.559  0.757  0.760          0.001
+                           ALL+G  0.648  0.568  0.770  0.773          0.002
+Yawuru kept  gmm50_k4 comb ALL    0.696  0.721  0.788  0.787          0.001
+                           ALL+G  0.712  0.723  0.801  0.797          0.001
+                      mean ALL    0.686  0.704  0.782  0.780          0.001
+                           ALL+G  0.706  0.718  0.796  0.793          0.002
+             nfi      comb ALL    0.682  0.731  0.771  0.767          0.001
+                           ALL+G  0.684  0.731  0.772  0.768          0.003
+                      mean ALL    0.677  0.728  0.767  0.764          0.000
+                           ALL+G  0.690  0.739  0.776  0.774          0.001
+             old      comb ALL    0.685  0.733  0.773  0.768          0.002
+                           ALL+G  0.686  0.734  0.774  0.770          0.001
+                      mean ALL    0.682  0.733  0.771  0.767          0.002
+                           ALL+G  0.696  0.745  0.781  0.778          0.001
+
+8d. B3b per-class P / R / F1
+----------------------------
+                                    P0    R0    F0    P1    R1    F1    P2    R2    F2    P3    R3    F3
+stack group        cutset   var                                                                         
+ALL   Dampier      gmm50_k4 comb  0.90  0.55  0.68  0.69  0.66  0.67  0.68  0.81  0.74  0.81  0.71  0.75
+                            mean  0.90  0.55  0.68  0.69  0.65  0.67  0.68  0.82  0.75  0.82  0.70  0.75
+                   nfi      comb  0.93  0.25  0.40  0.84  0.62  0.71  0.60  0.63  0.62  0.87  0.92  0.89
+                            mean  0.93  0.25  0.39  0.84  0.60  0.70  0.60  0.63  0.62  0.87  0.92  0.89
+                   old      comb  0.93  0.25  0.40  0.84  0.61  0.71  0.61  0.64  0.63  0.87  0.92  0.90
+                            mean  0.93  0.25  0.39  0.84  0.59  0.69  0.62  0.64  0.63  0.87  0.93  0.90
+      Yawuru burnt gmm50_k4 comb  0.52  0.14  0.22  0.78  0.87  0.82  0.73  0.82  0.77  0.84  0.21  0.33
+                            mean  0.54  0.15  0.24  0.77  0.88  0.82  0.73  0.81  0.77  0.84  0.20  0.33
+                   nfi      comb  0.00  0.00  0.00  0.82  0.69  0.75  0.62  0.78  0.69  0.90  0.81  0.85
+                            mean  0.00  0.00  0.00  0.82  0.67  0.74  0.61  0.78  0.68  0.90  0.80  0.85
+                   old      comb  0.00  0.00  0.00  0.81  0.66  0.73  0.63  0.79  0.70  0.89  0.81  0.85
+                            mean  0.00  0.00  0.00  0.80  0.65  0.72  0.63  0.78  0.70  0.89  0.80  0.85
+      Yawuru kept  gmm50_k4 comb  0.97  0.90  0.94  0.67  0.59  0.63  0.68  0.85  0.76  0.71  0.53  0.61
+                            mean  0.97  0.91  0.94  0.67  0.58  0.62  0.67  0.86  0.75  0.71  0.47  0.57
+                   nfi      comb  0.98  0.55  0.71  0.75  0.85  0.80  0.61  0.62  0.62  0.82  0.90  0.86
+                            mean  0.98  0.57  0.72  0.76  0.84  0.80  0.60  0.61  0.60  0.81  0.89  0.85
+                   old      comb  0.98  0.55  0.71  0.74  0.85  0.79  0.63  0.62  0.63  0.82  0.90  0.86
+                            mean  0.98  0.57  0.72  0.75  0.85  0.80  0.62  0.62  0.62  0.81  0.89  0.85
+ALL+G Dampier      gmm50_k4 comb  0.91  0.55  0.69  0.69  0.67  0.68  0.69  0.82  0.75  0.82  0.71  0.76
+                            mean  0.90  0.55  0.69  0.70  0.66  0.68  0.69  0.83  0.75  0.83  0.71  0.76
+                   nfi      comb  0.95  0.23  0.37  0.84  0.61  0.71  0.60  0.64  0.62  0.87  0.92  0.90
+                            mean  0.94  0.23  0.37  0.84  0.60  0.70  0.61  0.64  0.63  0.87  0.92  0.90
+                   old      comb  0.95  0.23  0.37  0.84  0.60  0.70  0.61  0.65  0.63  0.87  0.92  0.90
+                            mean  0.94  0.23  0.37  0.84  0.59  0.69  0.62  0.65  0.63  0.87  0.93  0.90
+      Yawuru burnt gmm50_k4 comb  0.68  0.10  0.17  0.78  0.89  0.83  0.74  0.82  0.78  0.84  0.22  0.34
+                            mean  0.70  0.10  0.18  0.78  0.89  0.83  0.74  0.82  0.78  0.85  0.21  0.34
+                   nfi      comb  0.00  0.00  0.00  0.84  0.70  0.76  0.64  0.79  0.71  0.91  0.82  0.86
+                            mean  0.00  0.00  0.00  0.83  0.69  0.75  0.63  0.80  0.70  0.91  0.82  0.86
+                   old      comb  0.00  0.00  0.00  0.81  0.66  0.73  0.65  0.80  0.71  0.91  0.82  0.86
+                            mean  0.00  0.00  0.00  0.81  0.65  0.72  0.64  0.80  0.71  0.91  0.82  0.86
+      Yawuru kept  gmm50_k4 comb  0.97  0.91  0.94  0.70  0.61  0.65  0.69  0.89  0.77  0.77  0.48  0.59
+                            mean  0.97  0.92  0.94  0.70  0.60  0.64  0.68  0.88  0.77  0.75  0.48  0.58
+                   nfi      comb  0.99  0.55  0.71  0.75  0.85  0.79  0.62  0.63  0.62  0.82  0.90  0.86
+                            mean  0.98  0.59  0.74  0.76  0.84  0.80  0.61  0.63  0.62  0.82  0.90  0.86
+                   old      comb  0.99  0.55  0.71  0.74  0.85  0.79  0.63  0.63  0.63  0.82  0.91  0.86
+                            mean  0.98  0.59  0.74  0.76  0.85  0.80  0.63  0.64  0.64  0.83  0.90  0.86
+confusion B3b ALL nfi comb Dampier (seed 0):
+[[   95   179    49    54]
+ [    7  3195  1647   344]
+ [    0   432  5072  2537]
+ [    0    20  1664 19420]]
+confusion B3b ALL nfi comb Yawuru burnt (seed 0):
+[[   0    3    0    0]
+ [   0  781  349    1]
+ [   0  163 1055  146]
+ [   0    5  304 1304]]
+confusion B3b ALL nfi comb Yawuru kept (seed 0):
+[[ 410  322    5    0]
+ [   6 1087  177   17]
+ [   0   36  520  276]
+ [   0    0  144 1308]]
+confusion B3b ALL+G nfi comb Dampier (seed 0):
+[[   88   186    49    54]
+ [    4  3183  1697   309]
+ [    0   404  5181  2456]
+ [    0    18  1665 19421]]
+confusion B3b ALL+G nfi comb Yawuru burnt (seed 0):
+[[   0    2    1    0]
+ [   0  793  336    2]
+ [   0  151 1083  130]
+ [   0    4  281 1328]]
+confusion B3b ALL+G nfi comb Yawuru kept (seed 0):
+[[ 403  332    2    0]
+ [   4 1092  182    9]
+ [   0   37  523  272]
+ [   0    0  137 1315]]
+
+8e. B3b importance — permutation R2 drop by group (seed 0)
+----------------------------------------------------------
+name          NISAR     S1     S2  NISAR GLCM  S1 GLCM  S2 GLCM
+stack target                                                   
+ALL   cover   0.308  0.251  0.462         NaN      NaN      NaN
+      mhi     0.978  0.139  0.371         NaN      NaN      NaN
+      mlo     1.119  0.505  0.614         NaN      NaN      NaN
+      mean    0.571  0.022  0.511         NaN      NaN      NaN
+ALL+G cover   0.188  0.152  0.361       0.080    0.052    0.092
+      mhi     0.409  0.036  0.289       0.206    0.014    0.139
+      mlo     0.481  0.146  0.221       0.144    0.044    0.455
+      mean    0.367  0.007  0.478       0.070    0.005    0.055
+
+8f. B3b top 5 impurity
+----------------------
+  ALL    cover S1_n_Pu_db 0.162, S1_n_alpha_dp 0.093, S1_n_DpRSI 0.070, 168_A_g0HH_dB 0.054, S1_n_Pd_db 0.052
+  ALL    mhi   168_A_g0HH_dB 0.148, 147_D_DpRSI 0.085, 168_A_Pd_db 0.076, EVI 0.062, 147_D_Pd_db 0.051
+  ALL    mlo   nbart_swir_3 0.077, S1_n_Pu_db 0.065, nbart_red 0.061, 147_D_Pd_db 0.045, nbart_green 0.043
+  ALL    mean  168_A_g0HV_dB 0.166, EVI 0.156, 168_A_g0HH_dB 0.128, NDVI 0.108, 168_A_DpRSI 0.056
+  ALL+G  cover glcm_S1_VH_dB_mean 0.116, S1_n_Pu_db 0.106, S1_n_alpha_dp 0.063, S1_n_DpRSI 0.050, 168_A_g0HH_dB 0.042
+  ALL+G  mhi   168_A_g0HH_dB 0.120, glcm_147_D_g0HH_dB_mean 0.093, glcm_168_A_g0HH_dB_mean 0.063, EVI 0.054, 147_D_DpRSI 0.051
+  ALL+G  mlo   glcm_nbart_red_dissimilarity 0.092, glcm_nbart_red_homogeneity 0.075, glcm_nbart_red_contrast 0.056, glcm_nbart_red_mean 0.030, nbart_swir_3 0.023
+  ALL+G  mean  168_A_g0HV_dB 0.164, EVI 0.140, 168_A_g0HH_dB 0.101, NDVI 0.093, glcm_168_A_g0HV_dB_mean 0.065
+
+Figures: G:\python\dampier_veg_timeseries\class_defs\outputs\cover_height\fig_r2_stacks.png, G:\python\dampier_veg_timeseries\class_defs\outputs\cover_height\fig_obs_pred.png
+Tables: G:\python\dampier_veg_timeseries\class_defs\outputs\cover_height\report_*.csv

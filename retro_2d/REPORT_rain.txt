@@ -1,0 +1,152 @@
+REPORT - retro_2d: ERA5 rain vs class maps, bands and importances
+=================================================================
+2026-10-31. Plan: C:\Users\glens\.claude\plans\we-re-working-on-retro-2d-warm-pumpkin.md
+
+
+KEY POINTS
+----------
+- Band levels follow wet-season rain. Wetter year -> higher
+  backscatter (S1 VH, VV, Pu, alpha; PALSAR HV) and darker
+  S2 bands. rho +0.9 / -0.9, S1 alpha rho 1.00.
+- This fits the hypothesis. It also gives a probable cause
+  for the year signature: 2019 (driest) is the extreme year.
+- Class shares of the own-year models do NOT follow rain.
+  No class has |rho| > 0.9; whole-histogram test: no relation.
+- So the own-year models absorb the rain shift. Detrending
+  their class shares by rain is not supported. Not done.
+- Feature importances: no clear rain relation. PALSAR HV is
+  rank 1 in 2019/21/23 and drops to 7-8 in 2024 (dry);
+  2025 rank 3-4. Green gain falls with rain (rho -0.7). Weak.
+- n = 5. Read rho sizes and consistency, not p values.
+
+
+RAIN (ERA5, mm, mainland area-weighted mean)
+--------------------------------------------
+image   rain year   wet      dry      total   late
+year                Oct-Apr  May-Sep  Jul-Jun May-Jul
+2019    2018-19     174      1        175     0
+2021    2020-21     921      10       931     9
+2023    2022-23     1036     61       1098    41
+2024    2023-24     283      21       304     20
+2025    2024-25     598      66       665     57
+mean    2000-01..2024-25  592  39     631     35
+
+Rank order is the same for wet and total (wet is 90-99 %
+of the year), so rho_total = rho_wet in every table.
+Check: ERA5 Jan-Jun 2024 284 mm vs Broome Airport 294 mm.
+
+
+BAND MEDIAN vs WET RAIN (fixed pindan ground, 199,984 px)
+---------------------------------------------------------
+band           rho     p
+S1 alpha      +1.00   0.02
+S1 VH         +0.90   0.08
+S1 VV         +0.90   0.08
+S1 Pu         +0.90   0.08
+S1 Pd         +0.90   0.08
+PALSAR HV     +0.90   0.08
+PALSAR Ps     +0.70   0.23
+PALSAR Pu     +0.40   0.52
+PALSAR HH     +0.10   0.95
+PALSAR alpha  -0.70   0.23
+Green         -0.90   0.08
+Red, NIR 1,
+ Red-edge 1-3 -0.90   0.08
+Blue          -1.00   0.02
+
+S1 (July image) follows rain more closely than PALSAR
+(annual mosaic, mixed dates). PALSAR HH: no relation.
+
+
+CLASS SHARE vs WET RAIN (own-year models, mainland)
+---------------------------------------------------
+k3r            rho     p        k4r            rho     p
+no canopy     +0.70   0.23      no canopy     +0.50   0.45
+C1 low sparse +0.40   0.52      C1 low sparse -0.30   0.68
+C2 mid dense  -0.60   0.35      C2 mid sparse +0.90   0.08
+C3 tall open  -0.30   0.68      C3 mid dense  -0.60   0.35
+                                C4 tall open  -0.50   0.45
+
+The k3r and k4r signs do not agree for the related classes.
+k4r C2 +0.90 is one hit in 9 classes x 3 series: expected
+by chance.
+
+
+WHOLE HISTOGRAM vs RAIN (similarity measure)
+--------------------------------------------
+Jensen-Shannon distance between each pair of years vs
+|rain difference|, Spearman over 10 pairs, exact
+permutation p (one-sided).
+
+series   k3r rho  p      k4r rho  p
+total    -0.25    0.68   +0.05    0.46
+wet      -0.25    0.69   +0.08    0.42
+late     +0.65    0.04   +0.01    0.49
+
+Years with different rain do not give more different maps.
+k3r late p 0.04 is not repeated in k4r: treat as chance.
+
+
+IMPORTANCE GAIN RANK per year (1 = top of 20)
+---------------------------------------------
+                k3r                     k4r
+band            19  21  23  24  25      19  21  23  24  25
+PALSAR HV        1   1   1   7   3       1   1   1   8   4
+PALSAR HH       16   6   7   2  11      10   5  15   4  17
+PALSAR Pu        2   3   2   5   4       5   3   2   6   2
+PALSAR alpha     5   2   8   4  10       3   2   4   2   7
+S1 VH           17  14  19   9  17      19  18  19  15  19
+S1 VV           20  20  20  20  20      20  20  20  20  20
+S1 Pu           13  13  13  10  13      15  13  12   7  13
+S1 alpha        15  17  15  17  15      16  15  14  16  14
+Green            7   9   9   6   5       6   8  16   5   5
+
+gain vs wet rain     k3r rho   k4r rho
+PALSAR HV            +0.40     +0.40
+PALSAR Pu            +0.70     +0.90
+PALSAR Ps            -0.60     -0.90
+Green                -0.70     -0.70
+S1 Pd                +1.00     +0.10
+(all 20 bands: outputs\rain\rho_importance_<set>.csv)
+
+S1 bands stay near the bottom every year. The rain shift
+in S1 is large, but S1 adds little within a year.
+
+
+LIMITS
+------
+1. n = 5 years. Smallest two-sided exact p = 2/120 = 0.017.
+   20 bands x 3 series: about 3 hits at p < 0.05 by chance.
+2. Rain and other year effects (S1 1B loss Dec 2021, mosaic
+   make-up) cannot be separated with 5 points.
+3. Band medians come from the year-signature table
+   (woody_thickening_splice_1), pindan fixed ground, not
+   the mainland.
+4. ERA5 is 0.25 deg (58 cells over the mainland).
+5. Importances depend on each year's fit, not only the image.
+
+
+NEXT (not done; needs a decision)
+---------------------------------
+The rain effect is in the bands, so a rain correction belongs
+at the feature level, not on class shares. Possible test:
+regress each band median on wet rain over the 5 years, remove
+the fitted shift, and re-run the 2025 model on the corrected
+earlier-year features (2025m, kappa now 0.29-0.43). If kappa
+rises, rain explains part of the transfer failure.
+
+
+FILES  (G:\python\dampier_veg_timeseries\retro_2d\)
+-----
+Scripts      rain_era5.py, rain_compare.py
+ERA5 raw     outputs\rain\raw\era5_tp_monthly_DP.nc
+Rain tables  outputs\rain\era5_rain_monthly.csv
+             outputs\rain\era5_rain_years.csv
+Charts       outputs\rain\hist_k3r_rain_mainland.png
+             outputs\rain\hist_k4r_rain_mainland.png
+             outputs\rain\share_vs_rain_k3r.png, _k4r.png
+             outputs\rain\band_vs_rain.png
+             outputs\rain\importance_vs_rain_k3r.png, _k4r.png
+Stats        outputs\rain\rho_share_<set>.csv, mantel_<set>.csv,
+             rho_band.csv, rho_importance_<set>.csv
+All tables   outputs\rain\rain_compare_tables.txt

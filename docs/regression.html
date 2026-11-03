@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Height and Cover Regression</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html" aria-current="page">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
+<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
+<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>4 · Regression: height and cover directly</h1>
+<p class="sub">Random forest, 500 trees (max_features 0.33, leaf 5), 39,023 label px, random stratified 5-fold, seeds 0–2.</p>
+
+<h2>Result</h2>
+<figure><a href="../class_defs/outputs/regression/fig_maps_ALL.png"><img src="../class_defs/outputs/regression/fig_maps_ALL.png" alt="Height (px mean) and cover maps 2026" loading="lazy"></a>
+<figcaption>Px mean height (m) and cover at 1.37 m, RF on the ALL stack (NISAR + S1 + S2).
+Maps: <code>height_mean_ALL.tif</code> <span class="src">(not yet available)</span>,
+<code>cover137_ALL.tif</code> <span class="src">(not yet available)</span>,
+<code>height_p98_ALL.tif</code> <span class="src">(not yet available)</span>
+(20 m, EPSG:32751, float32, nodata −9999; 99.9 % of mainland px valid).
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/fig_regression_maps.py">fig_regression_maps.py</a></figcaption></figure>
+
+<h3>K-fold, by stack (fold mean, fold SD)</h3>
+<!-- BEGIN table:reg_kfold -->
+<div class="wrap"><table><tr><th>group</th><th>target</th><th class=n>R² ALL</th><th class=n>R² SAR</th><th class=n>R² MS</th><th class=n>RMSE ALL</th><th class=n>bias ALL</th></tr><tr><td>pooled</td><td>px mean (m)</td><td class=n>0.795 (0.006)</td><td class=n>0.718 (0.006)</td><td class=n>0.754 (0.007)</td><td class=n>0.724 (0.014)</td><td class=n>-0.000</td></tr><tr><td>pooled</td><td>cover 1.37 m</td><td class=n>0.811 (0.005)</td><td class=n>0.754 (0.005)</td><td class=n>0.769 (0.005)</td><td class=n>0.095 (0.001)</td><td class=n>-0.001</td></tr><tr><td>Dampier</td><td>px mean (m)</td><td class=n>0.773 (0.007)</td><td class=n>0.687 (0.005)</td><td class=n>0.734 (0.007)</td><td class=n>0.746 (0.014)</td><td class=n>-0.001</td></tr><tr><td>Dampier</td><td>cover 1.37 m</td><td class=n>0.775 (0.004)</td><td class=n>0.711 (0.005)</td><td class=n>0.734 (0.005)</td><td class=n>0.095 (0.001)</td><td class=n>+0.000</td></tr><tr><td>Yawuru kept</td><td>px mean (m)</td><td class=n>0.879 (0.008)</td><td class=n>0.841 (0.011)</td><td class=n>0.789 (0.008)</td><td class=n>0.508 (0.016)</td><td class=n>+0.010</td></tr><tr><td>Yawuru kept</td><td>cover 1.37 m</td><td class=n>0.903 (0.007)</td><td class=n>0.860 (0.010)</td><td class=n>0.847 (0.008)</td><td class=n>0.094 (0.004)</td><td class=n>-0.009</td></tr></table></div><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_summary.csv">class_defs/outputs/regression/score_summary.csv</a> (2026-11-02 14:41)</p>
+<!-- END table:reg_kfold -->
+<p>ALL = NISAR + S1 + S2 (49); SAR = NISAR + S1 (36); MS = S2 (13). Per source, never blended.
+ALL beats SAR and MS in every group; every gain is beyond 2 fold SD
+(<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_gains.csv">score_gains.csv</a>).</p>
+<p>p98 (separate RF, same rows and folds): K-fold R² 0.724, RMSE 1.68 m (pooled). See <a href="p98_residual.html">5 · p98 residual</a>.</p>
+
+<h2>Cover × height: what was tested on the way</h2>
+<ul>
+<li>Px mean = cover × mean height above 1.37 m + (1 − cover) × mean height below. Modelling the parts and
+combining them gives the same skill as the direct model (|ΔR²| ≤ 0.009). Direct kept.</li>
+<li>GLCM texture (72 features) adds +0.01 to +0.02 R², but its 100 m windows overlap the test px (optimistic).
+Not in the maps.</li>
+<li>Burnt Yawuru rows added back: no change on the shared rows (ΔR² −0.000).</li>
+</ul>
+<figure><a href="../class_defs/outputs/cover_height/fig_r2_stacks.png"><img src="../class_defs/outputs/cover_height/fig_r2_stacks.png" alt="RF R2 by stack, without and with GLCM" loading="lazy"></a>
+<figcaption>K-fold R² by stack, without (blue) and with GLCM (orange). ALL is best for every target.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/cover_height_report.py">cover_height_report.py</a></figcaption></figure>
+<figure><a href="../class_defs/outputs/cover_height/fig_obs_pred.png"><img src="../class_defs/outputs/cover_height/fig_obs_pred.png" alt="Observed vs predicted, ALL+G" loading="lazy"></a>
+<figcaption>Observed vs predicted (ALL + GLCM, seed 0): cover, mean height above 1.37 m, px mean direct and combined.
+Top: Dampier; bottom: Yawuru kept.</figcaption></figure>
+<figure><a href="../nisar_2026/outputs/figures/fig_regression.png"><img src="../nisar_2026/outputs/figures/fig_regression.png" alt="First 2026 RF regression, naive and K-fold" loading="lazy"></a>
+<figcaption>History: the first 2026 RF (GCOV stack, Dampier only, 2026-10-21). K-fold R² mean 0.77, p90 0.66, p98 0.62.
+The naive (resubstitution) row shows why only K-fold numbers are reported.</figcaption></figure>
+
+<h2>Reports and code</h2>
+<ul>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_regression.txt">REPORT_regression.txt</a> (K-fold R² / RMSE / bias, gains, importances, class check, map checks).</li>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_cover_height.txt">REPORT_cover_height.txt</a> (cover × height, GLCM, combined vs direct).</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/cover_height_rf.py">cover_height_rf.py</a> (RF, stacks),
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/regression_2026.py">regression_2026.py</a> (<code>score</code>, <code>maps</code>),
+detached launcher <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/regression_maps.ps1">regression_maps.ps1</a>.</li>
+<li>Plan and state: <code>PLAN_regression.md</code> <span class="src">(not in this repo)</span>,
+<code>CHECKPOINT_regression.md</code> <span class="src">(not in this repo)</span>.</li>
+</ul>
+</main>
+</body>
+</html>

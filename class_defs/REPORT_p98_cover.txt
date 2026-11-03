@@ -1,0 +1,91 @@
+REPORT — p98 from mean + cover, and height-cover decorrelation (p98_cover.py)
+Labels: 39,023 px (Dampier 2026 + Yawuru kept). Folds: folds_cover_height.json. Seed 0 only (seed SD 0.000 in REPORT_regression).
+p98 = 98th percentile of the 50 cm CHM cells in the 20 m px. Values: fold mean (fold SD).
+Optimistic: random K-fold under spatial autocorrelation.
+
+0. LABELS (mean per group)
+              mean    p90    p98  cover_1.37
+group                                       
+Dampier      2.894  7.193  9.028       0.495
+Yawuru kept  1.698  3.598  4.518       0.352
+r(p98, mean) 0.792; r(p98, cover) 0.608; r(mean, cover) 0.822
+
+1. p98 K-FOLD (direct RF vs transfer f(mean_hat, cover_hat))
+                                       r2           rmse            bias        pearson
+direct         pooled       0.724 (0.004)  1.677 (0.017)   0.001 (0.030)  0.851 (0.003)
+               Dampier      0.628 (0.004)  1.743 (0.018)  -0.026 (0.032)  0.793 (0.003)
+               Yawuru kept  0.883 (0.004)  1.002 (0.019)   0.217 (0.049)  0.945 (0.003)
+transfer       pooled       0.650 (0.003)  1.889 (0.011)   0.233 (0.035)  0.810 (0.001)
+               Dampier      0.562 (0.003)  1.890 (0.013)   0.093 (0.036)  0.751 (0.002)
+               Yawuru kept  0.584 (0.016)  1.886 (0.034)   1.361 (0.054)  0.930 (0.003)
+transfer_mean  pooled       0.615 (0.005)  1.982 (0.018)   0.156 (0.034)  0.786 (0.003)
+               Dampier      0.529 (0.005)  1.960 (0.020)  -0.026 (0.033)  0.728 (0.004)
+               Yawuru kept  0.462 (0.017)  2.146 (0.028)   1.624 (0.048)  0.930 (0.004)
+oracle         pooled       0.856 (0.004)  1.212 (0.011)   0.001 (0.018)  0.925 (0.002)
+               Dampier      0.828 (0.005)  1.184 (0.011)  -0.121 (0.019)  0.911 (0.003)
+               Yawuru kept  0.765 (0.012)  1.419 (0.031)   0.981 (0.026)  0.971 (0.001)
+mean_hat (ref) pooled       0.795 (0.006)  0.724 (0.013)  -0.000 (0.013)  0.892 (0.003)
+               Dampier      0.772 (0.006)  0.746 (0.013)  -0.002 (0.014)  0.879 (0.004)
+               Yawuru kept  0.879 (0.007)  0.508 (0.015)   0.010 (0.012)  0.938 (0.004)
+
+direct RF top 8 impurity (fold mean): 168_A_g0HH_dB 0.208, 168_A_g0HV_dB 0.141, 168_A_Pu_db 0.067, 147_D_g0HH_dB 0.055, 147_D_g0HV_dB 0.049, 168_A_Pd_db 0.041, 147_D_Pu_db 0.034, nbart_blue 0.033
+
+2. DECORRELATION — residual r = p98 - E[p98 | cover]; skill of r_hat against the LiDAR r
+                                      r2           rmse            bias        pearson
+res direct   pooled        0.468 (0.003)  1.602 (0.008)  -0.249 (0.020)  0.694 (0.003)
+             Dampier       0.419 (0.004)  1.650 (0.006)  -0.268 (0.025)  0.660 (0.002)
+             Yawuru kept   0.538 (0.026)  1.140 (0.050)  -0.099 (0.047)  0.738 (0.016)
+res transfer pooled        0.359 (0.006)  1.757 (0.012)  -0.017 (0.026)  0.600 (0.005)
+             Dampier       0.339 (0.008)  1.759 (0.010)  -0.149 (0.031)  0.588 (0.005)
+             Yawuru kept  -0.077 (0.070)  1.740 (0.044)   1.044 (0.055)  0.565 (0.028)
+residual SD (LiDAR) 2.196 m; p98 SD 3.193 m
+
+3. DECORRELATION — 5 x 5 px window r(p98, cover); skill against the LiDAR window r (35,994 px with >= 20 label px in the window)
+                                        r2           rmse           bias        pearson
+win r direct   pooled       -0.253 (0.019)  0.368 (0.002)  0.186 (0.005)  0.604 (0.007)
+               Dampier      -0.356 (0.023)  0.372 (0.002)  0.195 (0.005)  0.597 (0.007)
+               Yawuru kept   0.132 (0.055)  0.325 (0.011)  0.091 (0.006)  0.629 (0.025)
+win r transfer pooled       -0.374 (0.025)  0.386 (0.002)  0.186 (0.006)  0.546 (0.009)
+               Dampier      -0.496 (0.027)  0.391 (0.002)  0.197 (0.006)  0.530 (0.009)
+               Yawuru kept   0.125 (0.071)  0.327 (0.013)  0.070 (0.008)  0.649 (0.029)
+LiDAR window r percentiles {1: np.float64(-0.457), 5: np.float64(-0.263), 25: np.float64(0.074), 50: np.float64(0.325), 75: np.float64(0.564), 95: np.float64(0.811), 99: np.float64(0.906)}
+map window r percentiles   {1: np.float64(-0.593), 5: np.float64(-0.285), 25: np.float64(0.289), 50: np.float64(0.601), 75: np.float64(0.788), 95: np.float64(0.913), 99: np.float64(0.952)}
+mean vs cover window r (LiDAR) {1: np.float64(-0.064), 5: np.float64(0.227), 25: np.float64(0.656), 50: np.float64(0.819), 75: np.float64(0.908), 95: np.float64(0.978), 99: np.float64(0.993)}
+
+4. MAPS (p98_cover.py maps; g fitted on the map, every 7th px)
+--------------------------------------------------------------
+p98 map E:\nisar_2026\regression\height_p98_ALL.tif
+valid 64,392,072 px
+p98 map percentiles {1: np.float64(0.49), 5: np.float64(0.97), 25: np.float64(3.2), 50: np.float64(5.75), 75: np.float64(7.83), 95: np.float64(10.19), 99: np.float64(12.61)}
+p98 labels percentiles  {1: np.float64(0.16), 5: np.float64(2.16), 25: np.float64(6.74), 50: np.float64(8.92), 75: np.float64(10.83), 95: np.float64(12.97), 99: np.float64(14.66)}
+g(cover) = E[p98 map | cover map]: g(0) 0.49, g(0.25) 5.06, g(0.5) 8.02, g(0.75) 9.66, g(1) 11.15 m
+residual percentiles {1: np.float64(-3.13), 5: np.float64(-1.95), 25: np.float64(-0.74), 50: np.float64(0.0), 75: np.float64(0.63), 95: np.float64(2.12), 99: np.float64(3.87)}
+residual w5 percentiles {1: np.float64(-2.87), 5: np.float64(-1.82), 25: np.float64(-0.68), 50: np.float64(0.01), 75: np.float64(0.56), 95: np.float64(2.0), 99: np.float64(3.6)}
+residual w5 valid 64,277,145 px
+g choice: g from the LiDAR labels put the scene median residual at -1.32 m (label relation 1-2 m above the scene
+at cover 0.2-0.5). g from the predicted pairs: same K-fold skill (residual R2 0.461 vs 0.468), bias 0.000.
+Residual window mean, K-fold skill (res_direct; optimistic, neighbours share training data):
+  window   1 px  3 x 3  5 x 5  9 x 9
+  R2       0.468 0.767  0.834  0.876
+  Pearson  0.694 0.893  0.931  0.955
+Lowest-20 % LiDAR residual px: 62 % also in the map's lowest 20 % (per px).
+Figure: outputs/p98_cover/fig_p98_resid.png (fig_p98_cover.py).
+
+5. READING
+----------
+| Question                              | Answer                                                        |
+|---------------------------------------|---------------------------------------------------------------|
+| p98 from f(mean_hat, cover_hat)?      | No: R2 0.650 vs direct RF 0.724 (pooled); Yawuru bias +1.36 m  |
+| Why                                   | oracle f(true mean, true cover) 0.856: the error is in the     |
+|                                       | input maps; f is also site-dependent (Yawuru oracle +0.98 m)   |
+| Does cover add to mean -> p98?        | Yes: transfer 0.650 vs mean-only 0.615                         |
+| p98 product                           | direct RF map, height_p98_ALL.tif (RMSE 1.68 m, SD 3.19 m)     |
+| Decorrelation product                 | p98_resid_w5_ALL.tif; per px R2 0.47, 5 x 5 px R2 0.83         |
+| Window r(p98, cover) map?             | No: K-fold R2 < 0; maps couple height and cover (+0.19 r bias) |
+| Use mean as the height axis?          | No: r(mean, cover) window median 0.82 (mean = c*mhi+(1-c)*mlo) |
+
+Caveats
+- Single date: a negative residual is "short for its cover" now, not "cover up, height not".
+- Post-fire resprouting, coastal and mangrove edges and input seams also read as negative.
+  Many red patches have straight edges (fire scars or S1 / NISAR / S2 seams); not yet checked against NAFI.
+- Map values away from the label sites are not verified.

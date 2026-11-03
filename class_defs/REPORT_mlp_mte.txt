@@ -1,0 +1,161 @@
+REPORT — multi-task bounded MLP, 5-seed ensemble (MTE) vs RF and single-task MLP, ALL stack
+(mlp_mte_2026.py; plan PLAN_mlp_mte.md)
+Labels 39,023 px (Dampier 2026 + Yawuru kept); folds_cover_height.json; 49 features (NISAR + S1 + S2).
+MTE: one net, 3 bounded heads; best config {'w': [512, 256], 'drop': 0.2, 'wd': 0.0001, 'head': 'delta'} (chosen on the test folds: optimistic);
+inputs clamped to the training p0.5 / p99.5; 5 members (seeds 0-4), ensemble = member mean.
+Values: fold mean over seeds (RF, MLP 3 seeds; MTE 1 ensemble). Gains paired per fold on seed 0;
+* = real: |gain| > 2 x fold SD and > SD of the 5 members' fold-mean value.
+Random K-fold under spatial autocorrelation: optimistic.
+
+1. HEADLINE — K-fold R2 and RMSE (m; cover as fraction)
+                    RF r2  MLP r2  MTE r2 MTE-RF r2 MTE-MLP r2  RF rmse  MLP rmse  MTE rmse MTE-RF rmse MTE-MLP rmse
+target group                                                                                                        
+mean   pooled       0.795   0.812   0.822   +0.027*    +0.009*    0.724     0.692     0.674     -0.050*      -0.017*
+       Dampier      0.773   0.790   0.800   +0.028*    +0.010*    0.746     0.717     0.699     -0.047*      -0.017*
+       Yawuru kept  0.879   0.906   0.919   +0.040*    +0.013*    0.508     0.448     0.415     -0.093*      -0.031*
+p98    pooled       0.724   0.723   0.736   +0.011*    +0.012*    1.677     1.681     1.642     -0.035*      -0.038*
+       Dampier      0.628   0.624   0.641   +0.013*    +0.016*    1.743     1.751     1.712     -0.031*      -0.038*
+       Yawuru kept  0.883   0.895   0.905   +0.022*    +0.009*    1.002     0.950     0.902     -0.100*      -0.043*
+cover  pooled       0.811   0.844   0.845   +0.034*     +0.002    0.095     0.087     0.086     -0.009*       -0.000
+       Dampier      0.775   0.812   0.813   +0.038*     +0.001    0.095     0.087     0.087     -0.008*       -0.000
+       Yawuru kept  0.903   0.927   0.929   +0.026*     +0.003    0.094     0.082     0.081     -0.014*       -0.002
+
+2. READING
+| Question                       | Answer
+| ------------------------------ | ----------------------------------------------------------------------
+| Better than RF?                | mean MTE better (+0.027); p98 MTE better (+0.011); cover MTE better (+0.034)
+| Better than MLP?               | mean MTE better (+0.009); p98 MTE better (+0.012); cover tie (noise) (+0.002)
+| p98 (head delta)               | MTE R2 0.736; vs RF +0.011, vs MLP +0.012
+| p98 residual                   | R2 RF 0.468 / MLP 0.471 / MTE 0.504; MTE-RF +0.036 (real)
+| Classes (gmm50ag4_y)           | macro F1 pooled RF 0.710 / MLP 0.722 / MTE 0.728
+| p98 >= mean (OOF)?             | px with p98 < mean: RF 0.01%, MLP 0.73%, MTE 0.00% (labels 0.00%)
+| SD flags errors?               | Spearman(SD, |err|): mean 0.28, p98 0.16, cover 0.22
+| Map px clipped / near 0        | at 0: MLP mean 11.0%, p98 5.5%, cover 8.1%; MTE < 0.05: mean 6.3% (labels 0.2%), p98 1.5% (labels 0.0%), cover 17.4% (labels 4.6%)
+| Map heights in range?          | max MTE / MLP / label: mean 13.4 / 16.9 / 13.2; p98 21.4 / 31.3 / 18.9
+| Training effective?            | beats ridge: mean True, p98 True, cover True; fits at max epoch 0 of 25
+
+3. ABLATION — pooled K-fold R2 (MT1 = member seed 0; MTnoclamp = MT1 without the input clamp)
+target      mean    p98  cover
+model                         
+RF         0.795  0.724  0.811
+MLP        0.812  0.723  0.844
+MTnoclamp  0.816  0.727  0.839
+MT1        0.815  0.728  0.839
+MTE        0.822  0.736  0.845
+
+configs (seed 0, 1 member; pooled OOF R2)
+ cfg           w  drop  head  r2_mean  r2_p98  r2_cover  r2_avg  best_ep_mean  ran_max       s
+   0  (512, 256)   0.2 delta   0.8154  0.7276    0.8394  0.7941         113.0      160 97.5430
+   1  (512, 256)   0.2 indep   0.8148  0.7262    0.8399  0.7936         100.8      134 87.5341
+   2 (1024, 512)   0.2 delta   0.8142  0.7230    0.8408  0.7927          86.0      119 76.8890
+   3 (1024, 512)   0.2 indep   0.8130  0.7239    0.8393  0.7920          75.6      124 68.8634
+
+4. EFFECTIVENESS
+      model target  r2_kfold  member_sd  r2_train  train_minus_kfold  ridge_r2  best_ep_mean  best_ep_max  fits  fits_at_max_ep
+        MT1   mean     0.815      0.000     0.881              0.066     0.731        113.00          140     5               0
+        MT1    p98     0.728      0.000     0.804              0.076     0.666        113.00          140     5               0
+        MT1  cover     0.839      0.000     0.894              0.055     0.719        113.00          140     5               0
+  MTnoclamp   mean     0.816      0.000     0.879              0.063     0.731        108.60          129     5               0
+  MTnoclamp    p98     0.727      0.000     0.800              0.072     0.666        108.60          129     5               0
+  MTnoclamp  cover     0.839      0.000     0.891              0.053     0.719        108.60          129     5               0
+MTE members   mean     0.815      0.000     0.876              0.061     0.731        110.08          147    25               0
+MTE members    p98     0.728      0.001     0.797              0.069     0.666        110.08          147    25               0
+MTE members  cover     0.838      0.001     0.890              0.051     0.719        110.08          147    25               0
+test rows with >= 1 clamped feature: 12.6% (mean 0.43 features per row); label px with p98 < mean 0.000%
+
+uncertainty: Spearman(member SD, |OOF error|), pooled; mean |error| per SD quintile
+        spearman  sd_median  abs_err_sdq1  abs_err_sdq2  abs_err_sdq3  abs_err_sdq4  abs_err_sdq5
+target                                                                                           
+mean       0.276      0.116         0.298         0.441         0.475         0.525         0.660
+p98        0.162      0.253         0.948         1.121         1.211         1.270         1.426
+cover      0.222      0.016         0.044         0.056         0.061         0.065         0.082
+
+5. p98 RESIDUAL r = p98 - g(cover) (g = E[p98 | cover], training-fold labels); K-fold R2 vs LiDAR r
+             RF R2  MLP R2  MTE R2   MTE-RF  MTE-MLP
+group                                               
+pooled       0.468   0.471   0.504  +0.036*  +0.033*
+Dampier      0.419   0.423   0.453  +0.035*  +0.031*
+Yawuru kept  0.538   0.535   0.636  +0.097*  +0.101*
+
+6. CLASS CHECK — px-mean preds -> classes, cut set gmm50ag4_y; RF / MLP mean of 3 seeds
+            macro_f1               worst_f1                  f1w              
+model            MLP    MTE     RF      MLP    MTE     RF    MLP    MTE     RF
+group                                                                         
+pooled         0.722  0.728  0.710    0.591  0.595  0.576  0.779  0.783  0.769
+Dampier        0.693  0.702  0.683    0.584  0.586  0.574  0.772  0.776  0.764
+Yawuru kept    0.765  0.778  0.738    0.604  0.610  0.579  0.820  0.833  0.800
+
+7. IMPORTANCE — permutation R2 drop by sensor (fold mean; MLP / MTE seed 0; RF p98 has impurity only)
+sensor        NISAR     S1     S2
+target model                     
+cover  MLP    0.465  0.135  0.716
+       MTE    0.511  0.102  0.578
+       RF     0.312  0.204  0.377
+mean   MLP    0.744  0.090  0.617
+       MTE    0.785  0.075  0.608
+       RF     0.540  0.020  0.509
+p98    MLP    1.102  0.133  0.334
+       MTE    1.087  0.122  0.338
+
+8. MAPS
+Maps: E:\nisar_2026\regression\{height_mean,height_p98,cover137}_MTE.tif, *_MTEsd.tif, n_clamped_MTE.tif, p98_resid_MTE.tif, p98_resid_w5_MTE.tif
+Checks (outputs/regression/map_checks_<t>_MTE.txt): map = ensemble at the label px (atol 1e-5), nodata -9999,
+no NaN, none outside the mainland; valid mask = RF map mask, 64,392,072 px (asserted, all 7 rasters).
+MTE g(cover) on the map: g(0) 0.02, g(0.25) 5.40, g(0.5) 7.93, g(0.75) 8.79, g(1) 10.09 m
+
+MTE vs RF and MTE vs MLP map agreement (all valid px); null = 8 x 8 px block shuffle of the MTE map, 20 reps
+                     n      r  r_null  r_null_sd   lift   rmsd  mean_mte_minus_ref
+vs  product                                                                       
+RF  mean      64392072  0.939  -0.000      0.001  0.939  0.468              -0.101
+    p98       64392072  0.935  -0.001      0.001  0.936  1.121              -0.243
+    cover     64392072  0.929   0.000      0.001  0.929  0.084              -0.015
+    resid     64392072  0.759  -0.000      0.001  0.759  0.937               0.002
+    resid_w5  64277145  0.808   0.000      0.001  0.807  0.781               0.001
+MLP mean      64392072  0.975  -0.000      0.001  0.976  0.292              -0.018
+    p98       64392072  0.978  -0.000      0.001  0.978  0.644              -0.044
+    cover     64392072  0.974   0.000      0.001  0.974  0.051              -0.006
+    resid     64392072  0.871  -0.000      0.001  0.872  0.757              -0.001
+    resid_w5  64277145  0.915   0.000      0.001  0.915  0.563              -0.001
+
+9. MAP RANGE
+Map px outside the label range (fraction of valid px). RF and MTE have no clip; MLP clips raw < 0 to 0.
+              at_zero  lt_005  label_lt_005  below_label_min  above_label_max    map_max  label_max
+target model                                                                                       
+mean   RF      0.0000  0.0000        0.0021           0.0000           0.0000  10.235100    13.1659
+p98    RF      0.0000  0.0000        0.0000           0.0000           0.0000  15.894900    18.9268
+cover  RF      0.0000  0.1252        0.0463           0.0000           0.0000   0.958600     0.9987
+mean   MLP     0.1099  0.1233        0.0021           0.1137           0.0000  16.941500    13.1659
+p98    MLP     0.0552  0.0562        0.0000           0.0561           0.0000  31.314899    18.9268
+cover  MLP     0.0815  0.1415        0.0463           0.0000           0.0005   1.000000     0.9987
+mean   MTE     0.0000  0.0632        0.0021           0.0353           0.0000  13.354900    13.1659
+p98    MTE     0.0000  0.0150        0.0000           0.0141           0.0000  21.376801    18.9268
+cover  MTE     0.0000  0.1735        0.0463           0.0000           0.0000   0.999000     0.9987
+
+map px with p98 < mean
+       map_p98_lt_mean
+model                 
+RF              0.0011
+MLP             0.0046
+MTE             0.0000
+
+n_clamped_MTE: features outside the training p0.5 / p99.5 per px
+0        0.6120
+1        0.0707
+2        0.0546
+3-5      0.1043
+6-10     0.0816
+11-49    0.0768
+
+MTE member SD percentiles (m; cover fraction)
+          p1     p5    p25    p50    p75    p95    p99
+mean   0.002  0.013  0.075  0.141  0.220  0.380  0.582
+p98    0.018  0.107  0.274  0.410  0.587  0.957  1.368
+cover  0.000  0.001  0.015  0.027  0.041  0.068  0.096
+
+Old MLP zeros (px where *_MLP.tif = 0): clamp share and MTE / RF values there
+        mlp_zero_px  ncl_ge1_there  ncl_ge1_all  ncl_median_there  MTE p5  MTE p50  MTE p95  RF p5  RF p50  RF p95
+target                                                                                                            
+mean        7077388          0.962        0.388              11.0   0.001    0.041    0.347  0.127   0.213   0.724
+p98         3555967          0.995        0.388              19.0   0.005    0.142    0.820  0.418   0.956   3.283
+cover       5245573          0.974        0.388              14.0   0.000    0.002    0.047  0.019   0.053   0.278
+

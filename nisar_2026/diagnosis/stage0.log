@@ -1,0 +1,446 @@
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 42
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 1699 s; best 0.7408 {'colsample_bytree': 0.8520398840496117, 'gamma': 0.10648208075445537, 'learning_rate': 0.05091144267603093, 'max_depth': 4, 'min_child_weight': 6, 'subsample': 0.8040439247709426}
+K-fold done (1713 s)
+C:\Users\glens\miniconda3\envs\general\Lib\site-packages\sklearn\metrics\_classification.py:2939: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7507        0.8061  0.6227       0.7602
+kfold  0.7066        0.7381  0.5543       0.7178
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4151              808          260                43
+true Low forest               710             6256         1123                52
+true Forest                    76             3185        13637              2306
+true Tall forest                0                1           90              2017
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3810             1116          293                43
+true Low forest               971             5720         1396                54
+true Forest                    79             3499        13238              2388
+true Tall forest                0                1          344              1763
+K-fold (random stratified 5-fold): OA 0.707, balanced 0.738, kappa 0.554, weighted F1 0.718 (naive OA 0.751)
+             precision  recall     f1        n
+Non-forest       0.784   0.724  0.753   5262.0
+Low forest       0.553   0.703  0.619   8141.0
+Forest           0.867   0.689  0.768  19204.0
+Tall forest      0.415   0.836  0.555   2108.0
+
+Top 10 features (gain, run 4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200):
+ rank      feature   group  importance
+    1          EVI      S2      0.2502
+    2         NDVI      S2      0.1216
+    3 168_A_gHH_dB GSLC_bs      0.1076
+    4 168_A_gHV_dB GSLC_bs      0.0946
+    5  147_D_DpRSI    GSLC      0.0374
+    6    nbart_red      S2      0.0250
+    7          BSI      S2      0.0244
+    8  nbart_green      S2      0.0185
+    9  147_D_Pu_db    GSLC      0.0153
+   10 147_D_gHV_dB GSLC_bs      0.0140
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                               0.206                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                               0.261                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                               0.163                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                               0.304                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+metrics.csv: equal (12 rows x 22 columns)
+confusion_kfold.csv: equal (4 rows x 5 columns)
+REPRODUCED
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 1
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 1932 s; best 0.7406 {'colsample_bytree': 0.5827030574231299, 'gamma': 0.34352914621662933, 'learning_rate': 0.13804325200847256, 'max_depth': 3, 'min_child_weight': 7, 'subsample': 0.9745081603438082}
+K-fold done (1942 s)
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7593        0.8144  0.6344       0.7679
+kfold  0.7121        0.7375  0.5601       0.7225
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4208              761          252                41
+true Low forest               721             6257         1121                42
+true Forest                    80             3110        13852              2162
+true Tall forest                0                1           66              2041
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3831             1090          299                42
+true Low forest               988             5660         1442                51
+true Forest                    90             3362        13493              2259
+true Tall forest                0                2          369              1737
+K-fold (random stratified 5-fold): OA 0.712, balanced 0.737, kappa 0.560, weighted F1 0.723 (naive OA 0.759)
+             precision  recall     f1        n
+Non-forest       0.780   0.728  0.753   5262.0
+Low forest       0.560   0.695  0.620   8141.0
+Forest           0.865   0.703  0.775  19204.0
+Tall forest      0.425   0.824  0.561   2108.0
+
+Top 10 features (gain, run 4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200):
+ rank      feature   group  importance
+    1         NDVI      S2      0.1578
+    2          EVI      S2      0.1417
+    3 168_A_gHV_dB GSLC_bs      0.1283
+    4 168_A_gHH_dB GSLC_bs      0.1057
+    5          BSI      S2      0.0820
+    6  147_D_DpRSI    GSLC      0.0353
+    7  147_D_Pu_db    GSLC      0.0350
+    8    nbart_red      S2      0.0226
+    9  nbart_green      S2      0.0160
+   10 147_D_gHH_dB GSLC_bs      0.0155
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                             NaN                                                 NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                           0.208                                               0.206                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                           0.287                                               0.261                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                           0.166                                               0.163                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                           0.329                                               0.304                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 2
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 1816 s; best 0.7406 {'colsample_bytree': 0.8161554599169817, 'gamma': 0.0052560936472446085, 'learning_rate': 0.13172027995567862, 'max_depth': 3, 'min_child_weight': 9, 'subsample': 0.7717894238250202}
+K-fold done (1827 s)
+C:\Users\glens\miniconda3\envs\general\Lib\site-packages\sklearn\metrics\_classification.py:2939: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7635        0.8185  0.6404       0.7718
+kfold  0.7143        0.7374  0.5627       0.7244
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4218              755          253                36
+true Low forest               704             6293         1098                46
+true Forest                    83             3087        13941              2093
+true Tall forest                0                0           56              2052
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3827             1103          289                43
+true Low forest               998             5668         1423                52
+true Forest                   101             3354        13574              2175
+true Tall forest                0                1          380              1727
+K-fold (random stratified 5-fold): OA 0.714, balanced 0.737, kappa 0.563, weighted F1 0.724 (naive OA 0.763)
+             precision  recall     f1        n
+Non-forest       0.777   0.727  0.751   5262.0
+Low forest       0.560   0.696  0.621   8141.0
+Forest           0.866   0.707  0.779  19204.0
+Tall forest      0.432   0.819  0.566   2108.0
+
+Top 10 features (gain, run 4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200):
+ rank      feature   group  importance
+    1          EVI      S2      0.2348
+    2 168_A_gHH_dB GSLC_bs      0.1090
+    3         NDVI      S2      0.1087
+    4 168_A_gHV_dB GSLC_bs      0.0965
+    5  147_D_DpRSI    GSLC      0.0362
+    6          BSI      S2      0.0278
+    7    nbart_red      S2      0.0240
+    8  168_A_DpRSI    GSLC      0.0203
+    9  nbart_green      S2      0.0178
+   10  147_D_Pu_db    GSLC      0.0175
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                             NaN                                             NaN                                                 NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                           0.208                                           0.224                                               0.206                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                           0.287                                           0.271                                               0.261                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                           0.166                                           0.172                                               0.163                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                           0.329                                           0.323                                               0.304                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 3
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 2129 s; best 0.7386 {'colsample_bytree': 0.7687171849722867, 'gamma': 0.4978931527777927, 'learning_rate': 0.02471689975153949, 'max_depth': 8, 'min_child_weight': 7, 'subsample': 0.8704066856760831}
+K-fold done (2158 s)
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.8367        0.8841  0.7473       0.8414
+kfold  0.7317        0.7340  0.5819       0.7397
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4647              420          171                24
+true Low forest               390             6977          752                22
+true Forest                    51             2413        15316              1424
+true Tall forest                0                0            3              2105
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3780             1138          308                36
+true Low forest               917             5669         1514                41
+true Forest                    72             3087        14318              1727
+true Tall forest                0                1          472              1635
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 4
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 1805 s; best 0.7401 {'colsample_bytree': 0.9764969856235605, 'gamma': 0.01685100673110429, 'learning_rate': 0.1336480741880519, 'max_depth': 3, 'min_child_weight': 8, 'subsample': 0.9224077911042478}
+K-fold done (1817 s)
+C:\Users\glens\miniconda3\envs\general\Lib\site-packages\sklearn\metrics\_classification.py:2939: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7638        0.8186  0.6408       0.7721
+kfold  0.7134        0.7368  0.5616       0.7237
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4237              738          249                38
+true Low forest               721             6264         1114                42
+true Forest                    83             3042        13965              2114
+true Tall forest                0                0           58              2050
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3830             1107          286                39
+true Low forest               987             5662         1440                52
+true Forest                    97             3349        13549              2209
+true Tall forest                0                2          381              1725
+K-fold (random stratified 5-fold): OA 0.713, balanced 0.737, kappa 0.562, weighted F1 0.724 (naive OA 0.764)
+             precision  recall     f1        n
+Non-forest       0.779   0.728  0.753   5262.0
+Low forest       0.559   0.695  0.620   8141.0
+Forest           0.865   0.706  0.777  19204.0
+Tall forest      0.429   0.818  0.563   2108.0
+
+Top 10 features (gain, run 4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200):
+ rank      feature   group  importance
+    1          EVI      S2      0.2707
+    2 168_A_gHV_dB GSLC_bs      0.1205
+    3 168_A_gHH_dB GSLC_bs      0.1180
+    4         NDVI      S2      0.0956
+    5  147_D_DpRSI    GSLC      0.0370
+    6          BSI      S2      0.0265
+    7    nbart_red      S2      0.0241
+    8 147_D_gHV_dB GSLC_bs      0.0156
+    9  nbart_green      S2      0.0156
+   10 147_D_gHH_dB GSLC_bs      0.0155
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                             NaN                                             NaN                                             NaN                                             NaN                                                 NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                           0.208                                           0.224                                           0.233                                           0.189                                               0.206                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                           0.287                                           0.271                                           0.235                                           0.297                                               0.261                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                           0.166                                           0.172                                           0.172                                           0.155                                               0.163                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                           0.329                                           0.323                                           0.296                                           0.332                                               0.304                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 5
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 1894 s; best 0.7411 {'colsample_bytree': 0.9749143110821472, 'gamma': 0.26623855914850636, 'learning_rate': 0.02345824676435492, 'max_depth': 6, 'min_child_weight': 9, 'subsample': 0.7401957892348563}
+K-fold done (1914 s)
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7613        0.8172  0.6381       0.7701
+kfold  0.7109        0.7379  0.5589       0.7216
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4236              730          253                43
+true Low forest               672             6353         1067                49
+true Forest                    73             3145        13808              2178
+true Tall forest                0                1           74              2033
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3809             1119          292                42
+true Low forest               939             5723         1428                51
+true Forest                    79             3443        13403              2279
+true Tall forest                0                1          364              1743
+K-fold (random stratified 5-fold): OA 0.711, balanced 0.738, kappa 0.559, weighted F1 0.722 (naive OA 0.761)
+             precision  recall     f1        n
+Non-forest       0.789   0.724  0.755   5262.0
+Low forest       0.556   0.703  0.621   8141.0
+Forest           0.865   0.698  0.773  19204.0
+Tall forest      0.424   0.827  0.560   2108.0
+
+Top 10 features (gain, run 4classTF_GSLC_seed5 / 20m_rflee5_gslcbs / n200):
+ rank      feature   group  importance
+    1          EVI      S2      0.2780
+    2 168_A_gHH_dB GSLC_bs      0.1163
+    3         NDVI      S2      0.1088
+    4 168_A_gHV_dB GSLC_bs      0.0614
+    5    nbart_red      S2      0.0232
+    6  147_D_DpRSI    GSLC      0.0231
+    7  nbart_green      S2      0.0184
+    8          BSI      S2      0.0183
+    9  168_A_Pu_db    GSLC      0.0153
+   10  147_D_Pu_db    GSLC      0.0153
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed5 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                             NaN                                             NaN                                             NaN                                             NaN                                             NaN                                                 NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                           0.208                                           0.224                                           0.233                                           0.189                                           0.214                                               0.206                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                           0.287                                           0.271                                           0.235                                           0.297                                           0.239                                               0.261                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                           0.547                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed5 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                           0.166                                           0.172                                           0.172                                           0.155                                           0.157                                               0.163                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                           0.329                                           0.323                                           0.296                                           0.332                                           0.296                                               0.304                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                           0.547                                               0.533                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+rows with a non-finite feature, dropped: 0
+training table: 34,715 rows x 39 features
+S2 only: 13 features
+cls
+Non-forest      5262
+Low forest      8141
+Forest         19204
+Tall forest     2108
+search: 200 iterations x 5 folds, n_jobs 10, seed 42
+Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+search done in 827 s; best 0.7272 {'colsample_bytree': 0.7839726152763147, 'gamma': 0.4577441487940209, 'learning_rate': 0.020183793575739652, 'max_depth': 7, 'min_child_weight': 7, 'subsample': 0.6486745036862753}
+K-fold done (840 s)
+C:\Users\glens\miniconda3\envs\general\Lib\site-packages\sklearn\metrics\_classification.py:2939: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+C:\Users\glens\miniconda3\envs\general\Lib\site-packages\sklearn\metrics\_classification.py:2939: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+           oa  balanced_acc   kappa  f1_weighted
+eval                                            
+naive  0.7384        0.7929  0.6036       0.7474
+kfold  0.6961        0.7244  0.5373       0.7068
+confusion naive:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              4122              764          331                45
+true Low forest               914             5933         1240                54
+true Forest                   121             3238        13570              2275
+true Tall forest                0                3           96              2009
+confusion kfold:
+                  pred Non-forest  pred Low forest  pred Forest  pred Tall forest
+true Non-forest              3806             1072          341                43
+true Low forest              1170             5396         1521                54
+true Forest                   120             3474        13228              2382
+true Tall forest                0                5          369              1734
+[predict]     rows 0-512 (29943 valid px)
+[predict]     rows 0-512 (307576 valid px)
+[predict]     rows 0-512 (360513 valid px)
+[predict]     rows 0-512 (658893 valid px)
+[predict]     rows 0-512 (894192 valid px)
+[predict]     rows 0-512 (1490626 valid px)
+[predict]     rows 0-512 (1668674 valid px)
+[predict]     rows 0-512 (2377361 valid px)
+[predict]     rows 0-512 (3023268 valid px)
+[predict]     rows 0-512 (3199350 valid px)
+[predict]     rows 0-512 (3530975 valid px)
+[predict]     rows 0-512 (3865274 valid px)
+[predict]     rows 0-512 (4078974 valid px)
+[predict]     rows 0-512 (4168414 valid px)
+[predict]     rows 0-512 (4118570 valid px)
+[predict]     rows 0-512 (4065950 valid px)
+[predict]     rows 0-512 (4047867 valid px)
+[predict]     rows 0-512 (4038133 valid px)
+[predict]     rows 0-512 (3644131 valid px)
+[predict]     rows 0-512 (3602570 valid px)
+[predict]     rows 0-512 (3894433 valid px)
+[predict]     rows 0-512 (4205341 valid px)
+[predict]     rows 0-361 (3138268 valid px)
+written: G:\python\dampier_veg_timeseries\nisar_2026\outputs\XGB_DP_S2_2026_4classTF_S2only.tif
+check: map equals the naive prediction at every training pixel
+mainland class fractions:
+Non-forest     0.3710
+Low forest     0.3156
+Forest         0.2668
+Tall forest    0.0466
+total 1105 s
+K-fold (random stratified 5-fold): OA 0.696, balanced 0.724, kappa 0.537, weighted F1 0.707 (naive OA 0.738)
+             precision  recall     f1        n
+Non-forest       0.747   0.723  0.735   5262.0
+Low forest       0.542   0.663  0.597   8141.0
+Forest           0.856   0.689  0.763  19204.0
+Tall forest      0.412   0.823  0.549   2108.0
+
+Top 10 features (gain, run 4classTF_S2only / 20m_rflee5_gslcbs / n200):
+ rank          feature group  importance
+    1             NDVI    S2      0.3237
+    2              EVI    S2      0.3194
+    3              BSI    S2      0.0523
+    4     nbart_swir_3    S2      0.0431
+    5        nbart_red    S2      0.0356
+    6      nbart_green    S2      0.0339
+    7 nbart_red_edge_2    S2      0.0303
+    8       nbart_blue    S2      0.0285
+    9     nbart_swir_2    S2      0.0282
+   10 nbart_red_edge_1    S2      0.0278
+
+Importance share by group (all classification runs in the record):
+key      4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed5 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4classTF_S2only / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+group                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+GCOV                          0.250                                       NaN                                                 NaN                                                 NaN                                                 NaN                                                 NaN                                             NaN                                             NaN                                             NaN                                             NaN                                             NaN                                                 NaN                                         NaN                          0.464                                 0.386                                    0.248                0.156                       0.182                0.143
+GSLC                          0.217                                     0.206                                               0.197                                               0.193                                               0.124                                               0.161                                           0.208                                           0.224                                           0.233                                           0.189                                           0.214                                               0.206                                         NaN                          0.536                                 0.614                                    0.253                0.290                       0.287                0.288
+GSLC_bs                         NaN                                     0.261                                               0.056                                               0.093                                               0.231                                               0.161                                           0.287                                           0.271                                           0.235                                           0.297                                           0.239                                               0.261                                         NaN                            NaN                                   NaN                                      NaN                  NaN                         NaN                  NaN
+S2                            0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                           0.547                                               0.533                                         1.0                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+
+Importance share by track (all classification runs in the record):
+key    4class / 20m_rflee5 / n200  4classTF_GSLC / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_0928 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_147D_1010 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_0929 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_168A_1011 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed1 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed2 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed3 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed4 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seed5 / 20m_rflee5_gslcbs / n200  4classTF_GSLC_seedcheck / 20m_rflee5_gslcbs / n200  4classTF_S2only / 20m_rflee5_gslcbs / n200  4class_NISARonly / 20m / n200  4class_NISARonly / 20m_rflee5 / n200  4class_noBundaExtra / 20m_rflee5 / n200  5class / 20m / n200  5class / 20m_rflee5 / n200  5class / 30m / n500
+track                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+147_D                       0.163                                     0.163                                               0.253                                               0.286                                                 NaN                                                 NaN                                           0.166                                           0.172                                           0.172                                           0.155                                           0.157                                               0.163                                         NaN                           0.26                                 0.483                                    0.191                0.189                       0.189                0.165
+168_A                       0.304                                     0.304                                                 NaN                                                 NaN                                               0.355                                               0.322                                           0.329                                           0.323                                           0.296                                           0.332                                           0.296                                               0.304                                         NaN                           0.74                                 0.517                                    0.309                0.257                       0.280                0.266
+S2                          0.533                                     0.533                                               0.747                                               0.714                                               0.645                                               0.678                                           0.505                                           0.505                                           0.532                                           0.513                                           0.547                                               0.533                                         1.0                            NaN                                   NaN                                    0.499                0.554                       0.531                0.569
+px valid in both: 64,392,143
+class fractions:
+             XGB_DP_NISAR_S2_2026_4classTF_GSLC  XGB_DP_S2_2026_4classTF_S2only
+Non-forest                               0.5546                          0.3708
+Low forest                               0.2160                          0.3157
+Forest                                   0.1943                          0.2669
+Tall forest                              0.0351                          0.0466
+agreement 0.6915 (full blocks 0.6885, 24,984 blocks); null 0.3275 (SD 0.0021); lift 0.3610

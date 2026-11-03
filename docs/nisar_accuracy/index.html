@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NISAR Accuracy Diagnosis</title>
+<!-- Master report for the nisar_2026 accuracy diagnosis. Moved here from nisar_2026\REPORT_master.html on 2026-11-03.
+     Update at the end of each stage. Links are relative to this file (docs\nisar_accuracy\). -->
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<nav><a href="../index.html">← Story</a><a href="../classification.html">Classification</a><a href="../side_roads.html">Side roads</a></nav>
+<h1>NISAR accuracy diagnosis — master report</h1>
+<p class="sub">Dampier Peninsula, 2026 four-class (4classTF) classification. Last updated 2026-10-29 (Stages 0, 1, 1.5 and 2 complete).
+Links open the project files in <code>nisar_2026\</code>. Part of the results site: <a href="../index.html">story</a>.</p>
+
+<h2>Executive summary</h2>
+<div class="abstract">
+<p>The 2026 four-class classification (Non-forest, Low forest, Forest, Tall forest) from NISAR L-band and Sentinel-2,
+trained on the 2026 drone LiDAR at 5 sites on the native 20 m grid, gives a K-fold overall accuracy (OA) of about
+0.71. The Yawuru PALSAR-2 work gives 0.77–0.80 (reference only, not directly comparable). This diagnosis tests
+three hypotheses in order: the NISAR processing (Stage 1), the domain and the diversity of the label sites
+(Stage 2), and the class thresholds and weights (Stage 3).</p>
+<p><strong>Stage 0</strong> measured the noise. Over 6 seeds, OA is 0.715 ± 0.009, so a difference smaller than
+<strong>0.017 OA</strong> (2 SD; kappa 0.019, F1w 0.015) is noise. All earlier 4classTF variants are inside this
+band. The parameter search optimises a class-balanced score that is almost flat across seeds, while the reported
+OA moves by 2.5 pp. At the label sites, S2 alone (OA 0.696) is the stronger single source: S2 adds 10.5 pp to NISAR
+alone (0.610), and NISAR adds 1.9 pp to S2 alone. In the map, the two sources weigh equally: each one-source map is
+the same distance from the combined map, NISAR sets the Non-forest extent, and the two one-source maps agree on
+only half of the mainland. The gap to the Yawuru numbers is about 4 noise bands, and NISAR adds much less here than
+PALSAR-2 added at Yawuru, which supports the Stage 1 hypothesis.</p>
+<p><strong>Stage 1</strong> reprocessed NISAR: corrected γ0 / σ0 radiometry, γ0 GSLC backscatter, a GCOV no-phase
+decomposition, four speckle / decomposition windows, and C-band S1 (CDSE September 2026 mosaic). Coherence was
+dropped (user: out of scope). None of this raises the NISAR + S2 accuracy beyond the noise (all 0.709–0.726). Only
+NISAR alone improves: a 9 × 9 Refined Lee filter on GSLC gives +0.038 OA (5 NISAR-only noise bands). S1 adds nothing
+to S2. The new reference stack is GSLC γ0 + GSLC decomposition, filter 9 × 9, ws 5, + S2
+(<code>E:\nisar_2026\feature_stack_2026_gslcg0_rflee9_ws5.tif</code>, tag <code>4classTF_GSLCg0_f9w5</code>).</p>
+<p><strong>Stage 1.5</strong> repeated Stage 0 on that stack. The accuracy did not change (6 seeds, OA 0.717), but
+the noise band is now <strong>0.006 OA</strong> (Stage 0's 0.017 came mostly from one seed). NISAR adds +0.021 OA to S2,
+the same size as in Stage 0, but now 3.3 bands, so beyond the noise. The two one-source maps still agree on only 51 %
+of the mainland. The conda environment was recreated during Stage 1 (numpy 2, xgboost 3.4.2); with S2 the effect is
+0.0006 OA.</p>
+<p><strong>Stage 2</strong> tested the domain and the label sites. <strong>The site difference has support; the label
+quantity does not.</strong> Inside Forest only, with 1 km block folds, the features identify the site at OA 0.88
+against a prior of 0.50 (S2 alone 0.88). A model trained inside one site is better at the 3 least typical sites
+(9 Mile and South Dampier, both burnt in 2026; Bunda Extra, white sand): +4.5 to +8.2 noise bands OA. The learning
+curve is flat at the top (20 k → 34.7 k labels: +0.003 OA). The 5 sites are not spread wider than the 13 Yawuru sites
+(median 35 against 29 km). Site covariates (rain, soil, elevation, northing, easting) add +0.028 OA in K-fold, but the
+map shows that they act as site identifiers (straight edges, Non-forest 83 % against 57 %), so they are not for a
+product. 9 Mile, the weakest site, loses 46 % of its Forest to Low forest: it burnt in July 2026 and many of its
+labels are near the 2.35 m cut; the LiDAR is not the cause.</p>
+<p><strong>Stage 2b</strong> tested NAFI fire history (250 m, 2000–2026 from the NAFI WCS, 2026 fires to September) as
+one extra feature: fire frequency 2017–26 and time since burnt in separate runs (they are correlated, ρ −0.70).
+<strong>Neither raises accuracy beyond the noise</strong> (FF +0.006 OA, 1.0 band; TSB −0.002), 9 Mile stays at
+0.63, and the maps change little (agreement 0.92–0.93, no artefacts). At 250 m each site has nearly one fire history
+(9 Mile: one TSB value), so the fire bands are site keys, and a fire effect cannot be separated from the site with 5
+sites. Not for the feature set.</p>
+<p><strong>Next:</strong> Stage 3, class thresholds and weights (<code>PLAN_stage3_thresholds.md</code> <span class="src">(not in this repo)</span>),
+only when the user says so.</p>
+</div>
+
+<div class="flag"><strong>⚑ To come back to (user, 2026-10-28):</strong> the S2-only and NISAR-only maps agree on
+only 51.0 % of the mainland (null 0.332, lift 0.177). Stage 1.5 repeated the test on the corrected NISAR: 51.2 %,
+lift 0.179, so no change. Where they disagree, and which is nearer the truth away from the label sites, is not known.
+See <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">report</a> §0.3–0.4, Stage 1.5, and <code>checkpoint</code> <span class="src">(not in this repo)</span> "Come back to".</div>
+
+<h2>Stages</h2>
+<div class="wrap"><table>
+<tr><th>Stage</th><th>Question</th><th>Status</th><th>Plan</th><th>Result</th><th>Key result</th></tr>
+<tr><td>0</td><td>How large is the noise? What does each source add?</td><td class="st done">complete 2026-10-28</td>
+  <td><code>PLAN_stage0_baseline.md</code> <span class="src">(not in this repo)</span></td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">§0</a></td>
+  <td>Noise band 0.017 OA. S2 only 0.696; S2 → NISAR +10.5 pp, NISAR → S2 +1.9 pp. One-source maps agree 51 %.</td></tr>
+<tr><td>1</td><td>Is the NISAR processing correct? (radiometry, decompositions, speckle, window, coherence, C-band)</td>
+  <td class="st done">complete 2026-10-29</td><td><code>PLAN_stage1_nisar.md</code> <span class="src">(not in this repo)</span></td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">§1</a></td>
+  <td>NISAR + S2 unchanged (0.709–0.726). NISAR only +0.038 with GSLC 9 × 9. S1 adds nothing. Coherence dropped. New reference stack <code>4classTF_GSLCg0_f9w5</code>.</td></tr>
+<tr><td>1.5</td><td>Stage 0 again on the new stack (incl. the NISAR-only revisit and the one-source map test)</td>
+  <td class="st done">complete 2026-10-29</td><td><code>PLAN_stage2_sites.md</code> <span class="src">(not in this repo)</span></td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">Stage 1.5</a></td>
+  <td>OA 0.717 (6 seeds); noise band now 0.006. NISAR → S2 +0.021 (3.3 bands). NISAR only 0.627. One-source maps 51 %.</td></tr>
+<tr><td>2</td><td>Domain and label-site diversity</td>
+  <td class="st done">complete 2026-10-29</td><td><code>PLAN_stage2_sites.md</code> <span class="src">(not in this repo)</span></td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">§2</a></td>
+  <td>Site difference supported (site OA 0.88 vs 0.50 in Forest only; within-site better at 3 of 5 sites). Labels not the limit (20 k → all +0.003). Covariates +0.028 but site identifiers, map artefacts.</td></tr>
+<tr><td>2b</td><td>Does NAFI fire history (FF or TSB, separate runs) help as a feature?</td>
+  <td class="st done">complete 2026-10-29</td><td><code>CHECKPOINT.md</code> <span class="src">(not in this repo)</span></td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">§2.8</a></td>
+  <td>No: FF +0.006 OA (1.0 band), TSB −0.002; maps 0.92–0.93 agreement with the reference, no artefacts. Fire bands are site keys at 250 m.</td></tr>
+<tr><td>3</td><td>Are the class thresholds (mainly 5.381 m) and weights appropriate?</td>
+  <td class="st next">next</td><td><code>PLAN_stage3_thresholds.md</code> <span class="src">(not in this repo)</span></td><td>§3 (not yet)</td><td>—</td></tr>
+</table></div>
+<p>Overview and the facts found during planning: <code>PLAN_accuracy_diagnosis.md</code> <span class="src">(not in this repo)</span>.</p>
+
+<h2>Key numbers (K-fold, 5 sites, 4classTF)</h2>
+<div class="wrap"><table>
+<tr><th>Run</th><th>Features</th><th class="n">OA</th><th class="n">kappa</th><th class="n">F1w</th><th>Source</th></tr>
+<tr><td><strong>NISAR + S2, new reference (<code>4classTF_GSLCg0_f9w5</code>), mean of 6 seeds</strong></td><td>39</td><td class="n">0.717 ± 0.003</td><td class="n">0.568</td><td class="n">0.727</td><td>Stage 1.5</td></tr>
+<tr><td>NISAR only, new reference, mean of 3 seeds</td><td>26</td><td class="n">0.627 ± 0.007</td><td class="n">0.451</td><td class="n">0.645</td><td>Stage 1.5</td></tr>
+<tr><td>NISAR + S2 + site covariates (one seed; site identifiers, not for a product)</td><td>45</td><td class="n">0.744</td><td class="n">0.605</td><td class="n">0.752</td><td>§2.5</td></tr>
+<tr><td>NISAR + S2 + NAFI fire frequency 2017–26 (one seed)</td><td>40</td><td class="n">0.721</td><td class="n">0.573</td><td class="n">0.731</td><td>§2.8</td></tr>
+<tr><td>NISAR + S2 + NAFI time since burnt (one seed)</td><td>40</td><td class="n">0.714</td><td class="n">0.565</td><td class="n">0.725</td><td>§2.8</td></tr>
+<tr><td>NISAR + S2, 20 k labels (mean of 2 seeds)</td><td>39</td><td class="n">0.713</td><td class="n">0.560</td><td class="n">0.723</td><td>§2.4</td></tr>
+<tr><td>NISAR + S1 + S2 (one seed)</td><td>49</td><td class="n">0.726</td><td class="n">0.578</td><td class="n">0.735</td><td>§1.4</td></tr>
+<tr><td>S1 + S2 (one seed)</td><td>23</td><td class="n">0.694</td><td class="n">0.536</td><td class="n">0.706</td><td>§1.4</td></tr>
+<tr><td>NISAR + S2, GSLC, mean of 6 seeds (Stage 0)</td><td>39</td><td class="n">0.715 ± 0.009</td><td class="n">0.563</td><td class="n">0.725</td><td>§0.2</td></tr>
+<tr><td>NISAR + S2, GCOV (<code>4class</code>)</td><td>39</td><td class="n">0.711</td><td class="n">0.559</td><td class="n">0.722</td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_nisar_2026.md">REPORT_nisar_2026</a> §2</td></tr>
+<tr><td>S2 only</td><td>13</td><td class="n">0.696</td><td class="n">0.537</td><td class="n">0.707</td><td>§0.3</td></tr>
+<tr><td>NISAR only (GCOV, one seed)</td><td>26</td><td class="n">0.610</td><td class="n">0.431</td><td class="n">0.629</td><td>REPORT_nisar_2026 §2</td></tr>
+<tr><td>Yawuru PALSAR-2 + S1 + S2 (reference only)</td><td>—</td><td class="n">0.798</td><td class="n">—</td><td class="n">0.784</td><td>PLAN_accuracy_diagnosis</td></tr>
+</table></div>
+<p>Noise band (2 SD over 6 seeds), from Stage 1.5 on: <strong>OA 0.006, kappa 0.008, F1w 0.006</strong> (Stage 0: OA 0.017,
+kappa 0.019, F1w 0.015). NISAR-only band: OA 0.014 (3 seeds). A difference smaller than this is noise.</p>
+
+<h2>Reports</h2>
+<ul>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_accuracy_diagnosis.md">REPORT_accuracy_diagnosis.md</a> — this diagnosis, one section per stage.</li>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/REPORT_nisar_2026.md">REPORT_nisar_2026.md</a> — the 2026 classification and CHM regression (the starting point):
+  §2 classification results, §6 caveats, §10 GSLC-only SAR, §11 one acquisition per run.</li>
+<li><code>CATALOG.md</code> <span class="src">(not in this repo)</span> — where every input and output lives (2026 table).</li>
+</ul>
+
+<h2>State and rules</h2>
+<ul>
+<li><code>nisar_2026\CHECKPOINT.md</code> <span class="src">(not in this repo)</span> — current state, the "come back to" item, open follow-on items.</li>
+<li><code>Project CHECKPOINT.md</code> <span class="src">(not in this repo)</span> — index of the live strands.</li>
+<li><code>Project CLAUDE.md</code> <span class="src">(not in this repo)</span> — conventions and settled decisions. <code>PLAN.md</code> <span class="src">(not in this repo)</span> — the original 2026 specification.</li>
+</ul>
+
+<h2>Products and code (Stage 0)</h2>
+<ul>
+<li>Seed summary: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage0.csv">outputs\diagnosis\stage0.csv</a>; all importances:
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/importance_record.csv">outputs\importance_record.csv</a>; log: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/diagnosis/stage0.log">diagnosis\stage0.log</a>.</li>
+<li>Maps: <code>XGB_DP_S2_2026_4classTF_S2only.tif</code> <span class="src">(not yet available)</span>,
+  <code>XGB_DP_NISAR_S2_2026_4classTF_GSLC.tif</code> <span class="src">(not yet available)</span>,
+  <code>XGB_DP_NISAR_S2_2026_4class.tif</code> <span class="src">(not yet available)</span>,
+  <code>XGB_DP_NISAR_2026_4class_NISARonly.tif</code> <span class="src">(not yet available)</span> (all in <code>outputs\</code>).</li>
+<li>Feature stack: <code>E:\nisar_2026\feature_stack_2026_gslc.tif</code> (on <code>E:\</code>, not linked).</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/classify_2026.py">classify_2026.py</a> (<code>--seed</code>, <code>--s2-only</code>, <code>--no-map</code>),
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/kfold_report_2026.py">kfold_report_2026.py</a>, <code>diagnosis\</code> <span class="src">(not in this repo)</span>
+  (<code>stage0_chain.ps1</code>, <code>repro_check.py</code>, <code>stage0_summary.py</code>, <code>map_agreement.py</code>).</li>
+</ul>
+
+<h2>Products and code (Stages 1 and 1.5)</h2>
+<ul>
+<li>Tables: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage1_2.csv">stage1_2.csv</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage15.csv">stage15.csv</a>,
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage15_sar_noise.csv">stage15_sar_noise.csv</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage1_radiometry.csv">stage1_radiometry.csv</a>,
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/stage1_enl.csv">stage1_enl.csv</a> (all in <code>outputs\diagnosis\</code>); logs <code>diagnosis\stage1_*.log</code>.</li>
+<li>Maps: <code>XGB_DP_NISAR_S2_2026_4classTF_GSLCg0_f9w5.tif</code> <span class="src">(not yet available)</span>,
+  <code>XGB_DP_NISAR_2026_4classTF_GSLCg0_f9w5_SAR.tif</code> <span class="src">(not yet available)</span>,
+  <code>XGB_DP_NISAR_2026_4classTF_GSLC_SAR.tif</code> <span class="src">(not yet available)</span> (1.0b).</li>
+<li>Reference stack: <code>E:\nisar_2026\feature_stack_2026_gslcg0_rflee9_ws5.tif</code>; all new products are listed in
+  <code>E:\NISAR\README.md</code> (on <code>E:\</code>, not linked).</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/feature_stack_2026.py">feature_stack_2026.py</a> (<code>--sar gcov_nophase|gslc_gamma</code>, <code>--rflee-win</code>,
+  <code>--dcmp-ws</code>, <code>--s1</code>), <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/classify_2026.py">classify_2026.py</a> (<code>--no-nisar</code>),
+  <code>G:\python\GDV\GEDI\gcov_decomposition.py</code>, <code>diagnosis\</code> <span class="src">(not in this repo)</span> (<code>stage1_*_chain.ps1</code>,
+  <code>stage1_5_chain.ps1</code>, <code>stage1_radiometry.py</code>, <code>stage1_enl.py</code>, <code>s1_mosaic_2026.py</code>).</li>
+<li>Yawuru reference (read only): <code>G:\python\SAR\WCM\RF_strat\4class\</code> <span class="src">(not in this repo)</span>.</li>
+</ul>
+
+<h2>Products and code (Stage 2)</h2>
+<ul>
+<li>Tables (in <code>outputs\diagnosis\</code>): <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/site_geography.csv">site_geography.csv</a>,
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/site_distance_km.csv">site_distance_km.csv</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/yawuru_sites.csv">yawuru_sites.csv</a>,
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/site_signature.csv">site_signature.csv</a> (+ <code>_confusion</code>, <code>_bands</code>),
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/within_vs_pooled.csv">within_vs_pooled.csv</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/learning_curve.csv">learning_curve.csv</a>,
+  <code>nine_mile_*.csv</code>; logs <code>diagnosis\stage2.log</code>, <code>stage2_cov.log</code>, <code>covariates_2026.log</code>, <code>nine_mile.log</code>.</li>
+<li>Figures: <a href="../../nisar_2026/outputs/diagnosis/learning_curve.png">learning_curve.png</a>, <a href="../../nisar_2026/outputs/diagnosis/cov_map_quicklook.png">cov_map_quicklook.png</a>.</li>
+<li>Covariates on the 20 m grid: <code>covariates_20m.tif</code> <span class="src">(not yet available)</span> (northing, easting, ANUClimate
+  rain, SLGA clay / sand 0–30 cm, Copernicus GLO-30); raw subsets <code>E:\nisar_2026\covariates_src\</code>. SLGA needs a TERN API key in
+  <code>C:\Users\glens\.netrc</code>.</li>
+<li>Map (diagnostic only): <code>XGB_DP_NISAR_S2_2026_4classTF_GSLCg0_f9w5_cov.tif</code> <span class="src">(not yet available)</span>.</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/classify_2026.py">classify_2026.py</a> (<code>--site</code>, <code>--subsample</code>, <code>--extra-features</code>),
+  <code>diagnosis\</code> <span class="src">(not in this repo)</span> (<code>stage2_chain.ps1</code>, <code>stage2_cov_chain.ps1</code>, <code>site_signature.py</code>,
+  <code>covariates_2026.py</code>, <code>site_geography.py</code>, <code>within_vs_pooled.py</code>, <code>learning_curve.py</code>,
+  <code>cov_map_quicklook.py</code>, <code>nine_mile.py</code>).</li>
+</ul>
+<h2>Products and code (Stage 2b)</h2>
+<ul>
+<li>Fire bands on the 20 m grid: <code>fire_ff_20m.tif</code> <span class="src">(not yet available)</span> (years burnt 2017–2026),
+  <code>fire_tsb_20m.tif</code> <span class="src">(not yet available)</span> (months since the last fire, to Sep 2026); raw NAFI WCS subsets
+  <code>E:\nisar_2026\nafi_src\</code>.</li>
+<li>Tables: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/fire_sites_2026.csv">fire_sites_2026.csv</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/fire_site_check.csv">fire_site_check.csv</a>,
+  <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/outputs/diagnosis/fire_site_values.csv">fire_site_values.csv</a>; logs <code>diagnosis\fire_covariates_2026.log</code>,
+  <code>stage2_fireFF.log</code>, <code>stage2_fireTSB.log</code>, <code>fire_site_check.log</code>.</li>
+<li>Figures: <a href="../../nisar_2026/outputs/diagnosis/fireFF_map_quicklook.png">fireFF_map_quicklook.png</a>, <a href="../../nisar_2026/outputs/diagnosis/fireTSB_map_quicklook.png">fireTSB_map_quicklook.png</a>.</li>
+<li>Maps (diagnostic only): <code>..._fireFF.tif</code> <span class="src">(not yet available)</span>,
+  <code>..._fireTSB.tif</code> <span class="src">(not yet available)</span>.</li>
+<li>Code: <code>diagnosis\</code> <span class="src">(not in this repo)</span> (<code>fire_covariates_2026.py</code>, <code>fire_site_check.py</code>;
+  <code>cov_map_quicklook.py</code> now has <code>--map</code>, <code>--label</code>, <code>--out</code>, <code>--scar</code>).</li>
+</ul>
+
+<h2>Terms</h2>
+<ul>
+<li><strong>4classTF</strong> — Non-forest (&lt; 1.22 m, Low merged in), Low forest (1.22–2.35 m), Forest (2.35–5.381 m),
+  Tall forest (≥ 5.381 m), on the mean of LiDAR p98 per 20 m pixel.</li>
+<li><strong>K-fold</strong> — random stratified 5-fold; optimistic under spatial autocorrelation.</li>
+<li><strong>Noise band</strong> — 2 SD of a metric over the seed runs.</li>
+<li><strong>Lift</strong> — map agreement minus its block-shuffle null (1 km blocks); the informative part of an agreement.</li>
+</ul>
+</main>
+</body>
+</html>

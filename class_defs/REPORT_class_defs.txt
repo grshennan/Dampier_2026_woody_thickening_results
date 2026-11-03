@@ -1,0 +1,104 @@
+REPORT — 2026 4-class definitions + XGB vs MLP (class_defs\)
+2026-11-02. Classification track. Within-year only (2026 images).
+
+RESULT
+------
+Working cut set: gmm50ag4_y.
+Best MLP (256-128, dropout 0.4) = XGB on Dampier; XGB better on Yawuru by 0.007 macro F1.
+The MLP does not overfit any more (enough px per class).
+
+K-fold (random stratified 5-fold), per source, never blended. MLP = mean of 3 seeds.
+
+Source   Model             macro F1  worst F1  F1w
+Dampier  XGB               0.698     0.576     0.761
+Dampier  MLP 128-64        0.698     0.567     0.758
+Dampier  MLP 256-128 (wide) 0.700    0.569     0.761
+Yawuru   XGB               0.746     0.591     0.803
+Yawuru   MLP 128-64        0.726     0.582     0.782
+Yawuru   MLP 256-128 (wide) 0.739    0.601     0.793
+
+MLP seed SD (macro F1): 128-64 Dampier 0.001 / Yawuru 0.005; 256-128 0.001 / 0.001.
+MLP train - K-fold macro F1: 0.028 (both nets; no overfit).
+
+Wide grid (2026-11-02, --grid wide; macro F1 K-fold, both sources, seed 42, best of dropout x wd):
+  128-64 0.719 | 256-128 0.723 | 512-256 0.721 | 1024-512 0.718  -> optimum at 256-128; wider = no gain.
+Wide perm. importance (macro F1 drop): red .177, red edge 1 .165, 168_A_g0HH .143, 168_A_g0HV .143, EVI .127,
+NDVI .121.
+Per class F1 below = 128-64 (seed 42). 256-128 gains most in the Yawuru top class (0.774 -> 0.792).
+XGB: one seed; earlier noise band (Stage 1.5) OA SD 0.006.
+
+Per class F1 (P / R):
+
+Class (px mean, m)  Dampier XGB       Dampier MLP       Yawuru XGB        Yawuru MLP
+< 0.641             0.726 (.82/.65)   0.735 (.81/.67)   0.943 (.94/.95)   0.942 (.93/.95)
+0.641-1.508         0.624 (.61/.64)   0.631 (.61/.65)   0.591 (.57/.61)   0.587 (.56/.61)
+1.508-2.483         0.576 (.52/.64)   0.570 (.51/.65)   0.631 (.59/.68)   0.611 (.54/.71)
+>= 2.483            0.866 (.90/.84)   0.859 (.91/.82)   0.820 (.89/.76)   0.777 (.90/.68)
+
+Hardest class: 1.508-2.483 m (F1 0.57-0.63).
+Yawuru gap XGB - MLP comes mostly from the top class (0.820 vs 0.777; MLP recall 0.68).
+
+Importances:
+XGB gain:  168_A_g0HH .166, 168_A_g0HV .113, EVI .069, NDVI .060, red .024, green .022
+MLP perm.  (macro F1 drop): 168_A_g0HV .18, red .18, red edge 1 .16, NDVI .13, EVI .13
+Both: L-band 168 A track + S2 greenness lead.
+
+CUT SET gmm50ag4_y
+------------------
+Labels: Dampier 2026 (5 sites, 34,715 px) + Yawuru 2025 kept (7 unburnt areas, 4,308 px) = 39,023 px.
+Method:
+  1. 50 cm p98 CHM cells of all label px, pooled; cells >= 0.2 m (36.4 M); 1 M at random.
+  2. GMM k 4, tol 1e-6 (converged, 397 EM steps; 2nd seed same cuts; 20 warm-start bootstraps).
+  3. Each cut height -> median px mean over px with 18-22 % cover at that height,
+     pooled over all 12 training sites. (0.2 m floor = for the fit only, not a cut.)
+
+Cut height 50 cm (m)  CI             Px-mean cut (m)  CI             n px  Dampier / Yawuru local
+0.491                 0.489-0.493    0.641            0.604-0.677    921   0.644 / 0.635
+2.810                 2.807-2.812    1.508            1.492-1.523   1757   1.519 / 1.228
+5.296                 5.260-5.292    2.483            2.455-2.516   2924   2.470 / 2.604
+
+Class px:  Dampier 2,422 / 4,588 / 7,527 / 20,178;  Yawuru 1,626 / 529 / 804 / 1,349;
+           both 4,048 / 5,117 / 8,331 / 21,527.  MLP gate (>= 2,000 px): pass.
+Check: Dampier-only local median at h 2 / 5 m = 1.203 / 2.335 (same as before).
+
+WHY THIS SET (decisions, user 2026-11-02)
+-----------------------------------------
+1. Cut method = local median at 18-22 % cover (linear fit wrong at low h; kept as a check).
+2. Yawuru kept areas included (many low-cover px).
+3. gmm50 family chosen; other families dropped (XGB, K-fold, Dampier / Yawuru):
+     Set              macro F1         worst F1
+     gmm50_k4_loc_y   0.739 / 0.764    0.697 / 0.647
+     nfi_loc_y        0.712 / 0.785    0.601 / 0.668
+     old_y            0.703 / 0.757    0.593 / 0.642
+4. DEFECT FOUND: the earlier gmm50 cuts (0.258 / 4.143 / 8.187, and the pooled 0.288 / 4.204 / 8.196)
+   came from EM stopped at 10 steps (sklearn tol 1e-3 on 1 M points). Not a GMM optimum; the
+   cuts depend on the start (10 seeds: 4.10-4.20, 8.05-8.20). outputs\gmm_seed_check.csv.
+   So the gmm50_k4_loc_y row above is not reproducible as a GMM result.
+5. Converged GMM k 4 on all cells: cuts 0.144 / 0.469 / 3.316 (2 components in the ground peak);
+   73 % of px in the top class -> rejected.
+6. User: "GMM above ground". k 3 above 0.2 m: 0.2 / 0.478 / 3.295 -> px cuts 0.408 / 0.636 / 1.671;
+   73 % top class, smallest 1,263 px -> rejected. k 4 above 0.2 m -> gmm50ag4_y (this set).
+
+CAVEATS
+-------
+- Random K-fold under spatial autocorrelation is optimistic; folds also chose XGB params / MLP config.
+- XGB naive OA 0.874 (Dampier) vs K-fold 0.755: XGB fits its training data much more closely than the MLP.
+- MLP width tested to 1024-512; 256-128 is best. The +0.002 (Dampier) / +0.013 (Yawuru) over 128-64 is above
+  2 x seed SD but small.
+- Yawuru labels are 12-18 months older than the images; YA25_2/3/5 + govcowwell are single-return clouds.
+- XGB search scored blended F1w (both sources); MLP chose its config on blended macro F1.
+- No leave-site-out (user rule).
+
+FILES
+-----
+Cuts:     G:\python\dampier_veg_timeseries\class_defs\cuts_loc.py (CUTS_K=4), log cuts_loc.log
+          G:\python\dampier_veg_timeseries\class_defs\outputs\cut_sets.json, cuts_loc.csv, cuts_loc_counts.csv
+          earlier sets: outputs\cut_sets_all.json, *_gmm50_k4_tol1e-6.*, *_gmm50ag_y.*
+Labels:   G:\python\dampier_veg_timeseries\class_defs\outputs\labels_yawuru_kept.parquet
+XGB:      G:\python\dampier_veg_timeseries\nisar_2026\outputs\classify_cd_gmm50ag4_y\
+          (classify_2026.py --extra-labels, divergence 18)
+MLP:      G:\python\dampier_veg_timeseries\class_defs\outputs\mlp_gmm50ag4_y\ (log mlp_gmm50ag4_y.log)
+          G:\python\dampier_veg_timeseries\class_defs\outputs\mlp_gmm50ag4_y_wide\ (--grid wide; log mlp_gmm50ag4_y_wide.log)
+Features: G:\python\dampier_veg_timeseries\class_defs\outputs\features_2026_labels_yawuru_kept.parquet
+          + folds_gmm50ag4_y.json (same rows and folds as XGB)
+GMM check: G:\python\dampier_veg_timeseries\class_defs\outputs\gmm_seed_check.csv

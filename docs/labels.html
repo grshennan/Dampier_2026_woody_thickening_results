@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiDAR Training Labels</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html" aria-current="page">1 Labels</a><a href="stack.html">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
+<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
+<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>1 · LiDAR → training labels</h1>
+<p class="sub">Drone LiDAR point clouds → 50 cm CHM and cover → statistics per 20 m NISAR pixel.</p>
+
+<h2>Result</h2>
+<div class="wrap"><table>
+<tr><th>Source</th><th>Areas</th><th class="n">Label px</th><th>Flown</th><th>Note</th></tr>
+<tr><td>Dampier 2026</td><td>9 Mile, Biota track, Bunda Extra, Country Downs, South Dampier</td><td class="n">34,715</td>
+<td>2026-10-05 to 10-09</td><td>Bunda Bunda and 2 MVT sites excluded; 0 cells burnt in the image window</td></tr>
+<tr><td>Yawuru 2025, kept</td><td>YA25_2, YA25_3, YA25_5, 20250407_govcowwell, YJ25_1, YJ25_6, YOct25_1</td>
+<td class="n">4,308</td><td>2025-03 to 2025-10</td><td>YA25_1–5 single-return</td></tr>
+<tr><td>Yawuru 2025, dropped</td><td>YA25_1, YA25_4, YJ25_2, YJ25_3, YJ25_4, YJ25_5</td><td class="n">—</td><td></td>
+<td>burnt between flight and image (NAFI + S2)</td></tr>
+<tr><td><strong>Total</strong></td><td>12 areas</td><td class="n"><strong>39,023</strong></td><td></td><td></td></tr>
+</table></div>
+
+<p>Targets per 20 m pixel (from the 50 cm p98 CHM cells inside it):</p>
+<ul>
+<li><strong>px mean</strong> — mean of the 50 cm cells (m).</li>
+<li><strong>p98</strong> — 98th percentile of the 50 cm cells (m).</li>
+<li><strong>cover 1.37 m</strong> — fraction of 50 cm cells ≥ 1.37 m.</li>
+<li>At the labels: r(p98, mean) 0.79, r(p98, cover) 0.61, r(mean, cover) 0.82.</li>
+</ul>
+
+<h2>Why 6 Yawuru areas were dropped</h2>
+<figure><a href="../class_defs/outputs/fire_gap/fig_fire_gap.png"><img src="../class_defs/outputs/fire_gap/fig_fire_gap.png" alt="Timeline of LiDAR flights and NAFI fire scars per area" loading="lazy"></a>
+<figcaption>LiDAR flight (dot) and NAFI fire scars between flight and the 2026 images (bar), per area.
+6 Yawuru areas burnt 131–506 days before the images. At the same structure, burnt cells read lower in NISAR
+(−0.4 to −1.1 dB) and NDVI. The areas are small against the 250 m NAFI grid, so we dropped them whole.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_fire_gap.txt">REPORT_fire_gap.txt</a> · <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/fire_gap.py">fire_gap.py</a></figcaption></figure>
+
+<h2>The 2026 LiDAR</h2>
+<figure><a href="../lidar_2026/outputs/hist_all_sites.png"><img src="../lidar_2026/outputs/hist_all_sites.png" alt="Height class and 0.5 m bin histograms, 50 cm CHM and SAR-pixel mean" loading="lazy"></a>
+<figcaption>All 6 surveyed sites: 50 cm CHM (left) and CHM mean per SAR pixel (right), by height class and 0.5 m bin.
+Aggregation moves the mass from bare ground into Forest: pixel means are not canopy heights
+(PALSAR grid here; the 20 m NISAR labels follow the same logic).
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/chm_class_histograms.py">chm_class_histograms.py</a></figcaption></figure>
+
+<figure><a href="../lidar_2026/outputs/hist_class_sar_mean.png"><img src="../lidar_2026/outputs/hist_class_sar_mean.png" alt="Per-site class histograms" loading="lazy"></a>
+<figcaption>Per site: the sites cover different parts of the range (Biota track 86 % Forest; South Dampier mostly
+Low veg / Low forest). Bunda Bunda is shown here but excluded from the labels.</figcaption></figure>
+
+<figure><a href="../lidar_2026/outputs/gap_fraction/gap_vs_height.png"><img src="../lidar_2026/outputs/gap_fraction/gap_vs_height.png" alt="Gap fraction against CHM mean and p98" loading="lazy"></a>
+<figcaption>Gap fraction (first returns) against CHM mean (top) and CHM p98 (bottom). The mean is mostly cover
+(R² 0.69–0.84); p98 is much less tied to cover (R² 0.30–0.45). This is why p98, not the mean, is the height axis
+for the residual. <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gap_vs_height.py">gap_vs_height.py</a></figcaption></figure>
+
+<h2>Caveats</h2>
+<ul>
+<li>Yawuru labels are 2025, the images 2026. Unburnt areas only, but growth in one year is not modelled.</li>
+<li>YA25_1–5 were flown single-return (fewer returns under the canopy).</li>
+<li>2026 Dampier clouds have the DJI Terra 5 cm density filter. Tests on 2 sites: heights unchanged, cover −0.02.
+A re-export without the filter is pending.</li>
+<li>CRS: CHM relabelled 7851 → 32751, not reprojected (fix pending).</li>
+</ul>
+
+<h2>Code and data</h2>
+<ul>
+<li>Point clouds and CHMs: <code>G:\Dampier\Dampier Lidar 2026\&lt;site&gt;\</code> (LAStools pipeline); Yawuru: <code>G:\Yawuru\</code>.</li>
+<li>CHM statistics on the 20 m grid: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/nisar_2026/labels_2026.py">nisar_2026\labels_2026.py</a>,
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/structure_grids.py">lidar_2026\structure_grids.py</a>,
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/structure_2d/cells_2d.py">structure_2d\cells_2d.py</a>.</li>
+<li>Label rows and folds: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/cover_height_rows.py">class_defs\cover_height_rows.py</a> →
+<code>class_defs\outputs\cover_height\rows.parquet</code>, <code>class_defs\outputs\folds_cover_height.json</code>;
+p98 rows <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/p98_cover.py">p98_cover.py</a> <code>rows</code>.</li>
+<li>Records: <code>CATALOG.md</code> <span class="src">(not in this repo)</span> (2026 drone LiDAR section).</li>
+</ul>
+</main>
+</body>
+</html>

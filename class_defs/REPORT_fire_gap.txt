@@ -1,0 +1,204 @@
+REPORT - fire gap between LiDAR flight and the 2026 image stack (Part A, PLAN_fire_gap.md)
+Date: 2026-11-02. Script: G:\python\dampier_veg_timeseries\class_defs\fire_gap.py
+Outputs: G:\python\dampier_veg_timeseries\class_defs\outputs\fire_gap
+Figure: G:\python\dampier_veg_timeseries\class_defs\outputs\fire_gap\fig_fire_gap.png
+
+READING AND RECOMMENDATION
+| Item | Result |
+|---|---|
+| Dampier 2026 | 0 cells burnt in the image window (NAFI); S2 < 1 % (pointer). Labels OK. |
+| Yawuru, burnt in the gap (NAFI) | 6 of 13 areas: YA25_1 55 %, YA25_4 68 %, YJ25_2 56 %, YJ25_3 100 %, YJ25_4 99 %, YJ25_5 67 % (3,020 of 8,419 cells) |
+| Fire dates | 2025-05-18..22 (YA25_1); 2025-08-01..09-14 (YA25_4, YJ25_2..4); 2026-04..06 (YJ25_5); 131-506 days before G |
+| S2 cross-check | confirms the NAFI dates; YA25_1 99 % and YJ25_2 92 % burnt by S2: NAFI's 250 m edges miss part of each fire |
+| S2 only | govcowwell 65 % + YA25_3 58 % (adjacent), 2026-04-29..05-02, dNBR 0.17-0.20, no NAFI scar: uncertain |
+| S2 artefact | YOct25_1 43 %: uniform dNBR 0.10 +- 0.005 on the first date after the flight -> not a fire |
+| Images vs labels | at the same cover x height, gap cells read lower: NISAR -0.4 to -1.1 dB (YA25_1, YA25_4, YJ25_5), S1 VH -0.3 to -2.4 dB, NDVI up to -0.09; YJ25_2 ~0 (its controls are S2-burnt) |
+| Label fit | gap rows not in training -> predicted cover below the pre-fire label (bias -0.045 to -0.11 in YA25_1, YJ25_2, YJ25_5, YA25_4; unburnt areas +-0.02) |
+| Gap rows in training | the RF fits them (random K-fold, autocorrelated): the mismatch becomes label noise, not a visible error |
+| Dampier rows | unchanged by adding Yawuru (cover R2 0.773 vs 0.777; mhi 0.699 vs 0.700) |
+| Ambiguous | 0 cells: "drop gap + ambiguous" = "drop gap" |
+
+Recommendation: drop the 6 burnt areas whole (YA25_1, YA25_4, YJ25_2, YJ25_3, YJ25_4, YJ25_5), not only the
+NAFI gap cells. Reason: the areas are ~0.25 km2 against a 250 m NAFI grid (88-100 % of cells in burnt areas are
+< 250 m from a scar edge), and S2 shows the "not burnt" rest of YA25_1 and YJ25_2 also burnt. Keeps 7 areas,
+4,308 cells. Flag (keep, or user decision) govcowwell + YA25_3 for the S2-only 2026-05 drop.
+Alternatives: drop NAFI gap cells only (5,399 cells kept); keep all with a fire flag.
+
+1. FLIGHT DATES (UTC, point gps_time)
+               site       source                         first                          last                                                  flag
+             YA25_1  Yawuru 2025 2025-04-22 03:50:56.945934534 2025-04-22 04:08:24.503196954                                                      
+             YA25_2  Yawuru 2025 2025-04-23 01:57:30.235351562 2025-04-23 02:15:31.584960938                                                      
+             YA25_3  Yawuru 2025 2025-04-23 05:10:27.670243025 2025-04-23 05:25:12.334055662                                                      
+             YA25_4  Yawuru 2025 2025-04-24 02:22:45.416007996 2025-04-24 02:37:52.573274851                                                      
+             YA25_5  Yawuru 2025 2025-04-24 04:26:40.454005480 2025-04-24 04:47:13.166788578                                                      
+20250407_govcowwell  Yawuru 2025 2025-03-28 02:11:43.511892080 2025-03-28 02:29:48.192125082 gps_time 2025-03-28 != name 2025-04-07; gps date used
+             YJ25_1  Yawuru 2025 2025-07-15 02:27:16.464792013 2025-07-15 02:44:34.472238302                                                      
+             YJ25_2  Yawuru 2025 2025-07-15 05:37:12.744320631 2025-07-15 05:54:39.286911726                                                      
+             YJ25_3  Yawuru 2025 2025-07-16 02:46:56.155246973 2025-07-16 03:05:55.433000565                                                      
+             YJ25_4  Yawuru 2025 2025-07-16 05:05:01.094292879 2025-07-16 05:22:25.100030184                                                      
+             YJ25_5  Yawuru 2025 2025-07-17 03:24:04.955130816 2025-07-17 03:41:42.962383509                                                      
+             YJ25_6  Yawuru 2025 2025-07-17 06:23:07.696357965 2025-07-17 06:40:19.703365088                                                      
+           YOct25_1  Yawuru 2025 2025-10-01 02:35:14.682468414 2025-10-01 02:52:58.015236855                                                      
+             9 Mile Dampier 2026 2026-10-09 02:09:27.809256077 2026-10-09 02:53:09.433045149                                                      
+        Biota track Dampier 2026 2026-10-07 03:52:04.218909979 2026-10-07 05:39:38.637299538                                                      
+        Bunda Extra Dampier 2026 2026-10-08 06:14:40.297270060 2026-10-08 06:48:50.246747971                                                      
+      Country Downs Dampier 2026 2026-10-09 04:07:55.700639963 2026-10-09 04:54:29.314958811                                                      
+      South Dampier Dampier 2026 2026-10-05 21:30:52.414201260 2026-10-05 23:10:07.234388113                                                      
+
+2. FIRES IN THE GAP PER AREA
+Window: Yawuru = flight .. 2026-10-11 (last NISAR date); Dampier = 2026-09-20 .. 2026-10-11 (image window).
+gap = NAFI scar period wholly in the window; ambiguous = period spans a window end (0 cells here).
+edge = cell centre < 250 m from a window-scar edge (NAFI edge uncertainty).
+      source                site     n          F   gap  s2_burnt_in_gap  s2_burnt_in_none  edge               fire_end  days_to_G          season
+Dampier 2026              9 Mile  4894 2026-10-09 0.000              NaN             0.000 0.000                    NaN        NaN             NaN
+Dampier 2026         Biota track 11612 2026-10-07 0.000              NaN             0.009 0.000                    NaN        NaN             NaN
+Dampier 2026         Bunda Extra  3987 2026-10-08 0.000              NaN             0.001 0.000                    NaN        NaN             NaN
+Dampier 2026       Country Downs  5206 2026-10-09 0.000              NaN             0.000 0.000                    NaN        NaN             NaN
+Dampier 2026       South Dampier  9016 2026-10-05 0.000              NaN             0.000 0.000                    NaN        NaN             NaN
+ Yawuru 2025 20250407_govcowwell   777 2025-03-28 0.000              NaN             0.645 0.000                    NaN        NaN             NaN
+ Yawuru 2025              YA25_1   805 2025-04-22 0.548            0.993             0.984 0.985             2025-05-22    506.000 early (Apr-Jul)
+ Yawuru 2025              YA25_2   754 2025-04-23 0.000              NaN             0.011 0.000                    NaN        NaN             NaN
+ Yawuru 2025              YA25_3   609 2025-04-23 0.000              NaN             0.576 0.000                    NaN        NaN             NaN
+ Yawuru 2025              YA25_4   667 2025-04-24 0.679            0.623             0.262 0.880             2025-09-01    404.000  late (Aug-Nov)
+ Yawuru 2025              YA25_5   305 2025-04-24 0.007            0.000             0.000 0.967             2025-08-31    405.000  late (Aug-Nov)
+ Yawuru 2025              YJ25_1   615 2025-07-15 0.000              NaN             0.057 0.000                    NaN        NaN             NaN
+ Yawuru 2025              YJ25_2   682 2025-07-15 0.562            0.984             0.836 1.000             2025-09-14    391.000  late (Aug-Nov)
+ Yawuru 2025              YJ25_3   674 2025-07-16 1.000            0.881               NaN 0.291             2025-09-01    404.000  late (Aug-Nov)
+ Yawuru 2025              YJ25_4   639 2025-07-16 0.994            0.677             1.000 0.452 2025-08-31, 2025-09-01    404.000  late (Aug-Nov)
+ Yawuru 2025              YJ25_5   644 2025-07-17 0.671            0.854             0.033 0.924 2026-05-25, 2026-06-08    131.000 early (Apr-Jul)
+ Yawuru 2025              YJ25_6   634 2025-07-17 0.000              NaN             0.011 0.025                    NaN        NaN             NaN
+ Yawuru 2025            YOct25_1   614 2025-10-01 0.000              NaN             0.432 0.000                    NaN        NaN             NaN
+
+NAFI scar periods in the window (cells per period):
+  site cls          s          e  cells
+YA25_1 gap 2025-05-18 2025-05-22    441
+YA25_4 gap 2025-08-20 2025-09-01    453
+YA25_5 gap 2025-08-01 2025-08-31      2
+YJ25_2 gap 2025-09-04 2025-09-14    383
+YJ25_3 gap 2025-08-20 2025-09-01    674
+YJ25_4 gap 2025-08-01 2025-08-31    185
+YJ25_4 gap 2025-08-20 2025-09-01    450
+YJ25_5 gap 2026-04-01 2026-06-08    216
+YJ25_5 gap 2026-05-09 2026-05-25    216
+
+S2 NBR cross-check (pointer only): share of cells with dNBR >= 0.1 in the window (dry season only);
+agree = S2 burnt == NAFI gap; s2_date_median = first clear date after the drop.
+                                  nafi_gap  s2_burnt  agree s2_date_median
+source       site                                                         
+Dampier 2026 9 Mile                  0.000     0.000  1.000            NaT
+             Biota track             0.000     0.009  0.991     2026-10-09
+             Bunda Extra             0.000     0.001  0.999     2026-10-04
+             Country Downs           0.000     0.000  1.000            NaT
+             South Dampier           0.000     0.000  1.000            NaT
+Yawuru 2025  20250407_govcowwell     0.000     0.645  0.355     2026-05-02
+             YA25_1                  0.548     0.989  0.552     2025-05-22
+             YA25_2                  0.000     0.011  0.989     2026-05-27
+             YA25_3                  0.000     0.576  0.424     2026-05-02
+             YA25_4                  0.679     0.507  0.660     2025-08-20
+             YA25_5                  0.007     0.000  0.993            NaT
+             YJ25_1                  0.000     0.057  0.943     2026-06-28
+             YJ25_2                  0.562     0.919  0.625     2025-09-14
+             YJ25_3                  1.000     0.881  0.881     2025-08-25
+             YJ25_4                  0.994     0.679  0.673     2025-08-30
+             YJ25_5                  0.671     0.584  0.891     2026-05-19
+             YJ25_6                  0.000     0.011  0.989     2026-05-17
+             YOct25_1                0.000     0.432  0.568     2025-10-04
+
+3. FEATURE OFFSET, GAP - NOT BURNT, SAME STRUCTURE
+Median difference in common bins of cover_1.37 x mhi_1.37 (>= 10 cells per class per bin), mean over bins.
+Only areas with >= 30 gap and >= 30 not-burnt cells (YJ25_3, YJ25_4: all burnt -> no comparison).
+SAR in dB; NDVI / EVI / BSI in index units.
+band    168_A_g0HV_dB  168_A_g0HH_dB  147_D_g0HV_dB  147_D_g0HH_dB  S1_VH_dB  NDVI   EVI   BSI
+site                                                                                          
+YA25_1          -0.75          -0.76          -0.85          -0.87     -0.27 -0.00 -0.00  0.01
+YA25_4          -0.95          -0.51          -0.98          -1.11     -1.27 -0.04 -0.02  0.03
+YJ25_2          -0.02          -0.42           0.17           0.21     -0.81  0.00  0.00 -0.00
+YJ25_5          -1.04          -0.71          -0.49          -0.50     -2.44 -0.09 -0.04  0.02
+
+        n_gap  n_none  bins  n_gap_bins  n_none_bins
+site                                                
+YA25_1    441     364     5         437          351
+YA25_4    453     214     4         105          158
+YJ25_2    383     299     8         377          296
+YJ25_5    432     212     3         413          185
+
+4. LABEL FIT (pooled RF 500, max_features 0.33, leaf 5; 49 features; 5 folds site x cover quintile, seed 42)
+Configs: all = Dampier + all Yawuru; no_gap = Yawuru gap rows removed from training (still predicted);
+dampier_only = Dampier rows only in training. Out-of-fold, per source (never blended).
+mhi rows: cover_1.37 >= 0.05.
+target       config             rows     n     r2  rmse   bias
+ cover          all          Dampier 34715  0.773 0.096  0.002
+ cover          all           Yawuru  8419  0.871 0.097 -0.011
+ cover          all Yawuru not burnt  5399  0.897 0.096 -0.008
+ cover          all       Yawuru gap  3020  0.773 0.100 -0.015
+ cover       no_gap          Dampier 34715  0.775 0.096  0.001
+ cover       no_gap           Yawuru  8419  0.776 0.129 -0.036
+ cover       no_gap Yawuru not burnt  5399  0.895 0.097 -0.013
+ cover       no_gap       Yawuru gap  3020  0.335 0.172 -0.077
+ cover dampier_only          Dampier 34715  0.777 0.095 -0.001
+ cover dampier_only           Yawuru  8419  0.421 0.207 -0.077
+ cover dampier_only Yawuru not burnt  5399  0.604 0.188 -0.035
+ cover dampier_only       Yawuru gap  3020 -0.266 0.237 -0.153
+   mhi          all          Dampier 34271  0.699 1.020 -0.009
+   mhi          all           Yawuru  7035  0.693 0.748  0.057
+   mhi          all Yawuru not burnt  4037  0.594 0.705  0.162
+   mhi          all       Yawuru gap  2998  0.755 0.803 -0.085
+   mhi       no_gap          Dampier 34271  0.699 1.020 -0.012
+   mhi       no_gap           Yawuru  7035  0.498 0.957 -0.056
+   mhi       no_gap Yawuru not burnt  4037  0.594 0.704  0.129
+   mhi       no_gap       Yawuru gap  2998  0.438 1.217 -0.305
+   mhi dampier_only          Dampier 34271  0.700 1.017  0.002
+   mhi dampier_only           Yawuru  7035 -0.021 1.365  0.076
+   mhi dampier_only Yawuru not burnt  4037 -0.492 1.351  0.482
+   mhi dampier_only       Yawuru gap  2998  0.272 1.384 -0.470
+
+5. RESIDUAL (pred - label), GAP - NOT BURNT, WITHIN AREA (median diff, bootstrap 95 % CI)
+target       config   site  n_gap  n_none   diff     lo     hi
+ cover          all YA25_1    441     364  0.009 -0.011  0.030
+ cover          all YA25_4    453     214  0.038  0.016  0.052
+ cover          all YJ25_2    383     299 -0.001 -0.021  0.019
+ cover          all YJ25_5    432     212 -0.058 -0.071 -0.042
+ cover       no_gap YA25_1    441     364 -0.038 -0.058 -0.021
+ cover       no_gap YA25_4    453     214  0.022  0.003  0.044
+ cover       no_gap YJ25_2    383     299 -0.023 -0.037 -0.004
+ cover       no_gap YJ25_5    432     212 -0.122 -0.139 -0.106
+ cover dampier_only YA25_1    441     364 -0.021 -0.041  0.001
+ cover dampier_only YA25_4    453     214  0.166  0.138  0.193
+ cover dampier_only YJ25_2    383     299 -0.085 -0.110 -0.039
+ cover dampier_only YJ25_5    432     212 -0.205 -0.231 -0.182
+   mhi          all YA25_1    441     364  0.094  0.019  0.160
+   mhi          all YA25_4    452     214 -0.684 -0.811 -0.523
+   mhi          all YJ25_2    383     299  0.241  0.089  0.344
+   mhi          all YJ25_5    432     212  0.066  0.026  0.109
+   mhi       no_gap YA25_1    441     364  0.011 -0.069  0.084
+   mhi       no_gap YA25_4    452     214 -1.655 -1.887 -1.387
+   mhi       no_gap YJ25_2    383     299  0.068 -0.095  0.202
+   mhi       no_gap YJ25_5    432     212  0.212  0.167  0.274
+   mhi dampier_only YA25_1    441     364  0.039 -0.040  0.118
+   mhi dampier_only YA25_4    452     214 -2.273 -2.483 -1.926
+   mhi dampier_only YJ25_2    383     299 -0.313 -0.565  0.036
+   mhi dampier_only YJ25_5    432     212 -0.173 -0.240 -0.067
+
+6. OUT-OF-FOLD BIAS / RMSE PER YAWURU AREA (pred - label), configs all and no_gap
+NOTE: YJ25_3 and YJ25_4 are ~100 % gap, so under no_gap they have no training rows: their no_gap
+numbers are in effect leave-area-out (project rule: not used as evidence; shown for completeness).
+               site   gap  cover_all_bias  cover_all_rmse  cover_no_gap_bias  cover_no_gap_rmse  mhi_all_bias  mhi_all_rmse  mhi_no_gap_bias  mhi_no_gap_rmse
+20250407_govcowwell 0.000          -0.020           0.111             -0.021              0.110         0.150         0.688            0.119            0.666
+             YA25_1 0.548          -0.061           0.114             -0.111              0.154        -0.103         0.504           -0.205            0.576
+             YA25_2 0.000          -0.018           0.109             -0.017              0.110         0.528         0.935            0.519            0.929
+             YA25_3 0.000           0.012           0.092              0.011              0.091         0.125         0.510            0.075            0.498
+             YA25_4 0.679          -0.029           0.104             -0.045              0.129        -0.167         1.050           -0.794            1.629
+             YA25_5 0.007           0.011           0.128              0.010              0.127         0.318         0.611            0.223            0.545
+             YJ25_1 0.000           0.002           0.096             -0.002              0.094         0.724         0.975            0.720            0.969
+             YJ25_2 0.562          -0.019           0.083             -0.053              0.108        -0.134         0.778           -0.255            0.884
+             YJ25_3 1.000          -0.017           0.114             -0.183              0.256         0.079         0.524            0.471            0.800
+             YJ25_4 0.994           0.027           0.088              0.043              0.107        -0.238         1.149           -1.029            1.726
+             YJ25_5 0.671          -0.004           0.085             -0.048              0.133         0.110         0.271            0.261            0.412
+             YJ25_6 0.000           0.003           0.085              0.001              0.086        -0.119         0.508           -0.130            0.513
+           YOct25_1 0.000           0.007           0.024              0.002              0.014        -0.254         1.240            0.026            1.373
+
+CAVEATS
+- NAFI is 250 m; the areas are ~0.25 km2, so most burnt-area cells are near a scar edge.
+- S2 NBR drop is a pointer only (no manual checking).
+- 12-18 months of growth without fire also changes structure; not measurable here.
+- YA25_1-5 are single-return clouds. K-fold is optimistic (spatial autocorrelation).

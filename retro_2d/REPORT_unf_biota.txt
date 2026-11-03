@@ -1,0 +1,128 @@
+REPORT: Biota track, unfiltered vs 5 cm-filtered DJI Terra export
+2026-11-01. Script retro_2d\unf_test.py. Outputs retro_2d\outputs\unf_test\.
+
+QUESTION
+Does the DJI Terra 5 cm spatial filter change the LiDAR cover, height or classes enough
+to re-export the other Dampier 2026 sites without it?
+
+RECOMMENDATION
+Re-export Bunda Extra first, as a second test, and keep the OLD georeference.
+- Heights do not change. Cover drops by 0.020 (median) in 98.7 % of cells.
+- At Biota only 1.5 % of k4r cells (0.9 % k3r) change class, because Biota is
+  92 % class 4. The cells that change are mostly "mid, dense" (k4r C3): 15 % of them.
+- Sites with more C3 cells will change more. Estimate from the Biota per-class rates:
+  Bunda Extra ~8 %, Country Downs ~4 %, South Dampier ~2 %, 9 Mile <1 %.
+  This estimate is weak: the filter effect can be different at each site.
+- If Bunda Extra changes <= 3 % of its cells, stop: use the existing clouds with the
+  caveat. If it changes more, re-export Country Downs and South Dampier too.
+- The cover drop is systematic. It is about 60 % of the Dampier - Yawuru median
+  cover difference (0.034), so pooled Dampier + Yawuru labels carry a small bias
+  until the re-export is done.
+
+GEOREFERENCE (separate finding)
+The unfiltered export is the filtered cloud moved by a fixed amount:
+  dx -1.002 m, dy -1.508 m (phase correlation of the 0.5 m p98 CHMs,
+  22 of 22 blocks of 512 m, IQR <= 0.001 m, peak 0.85).
+  The header extents also differ by -1.0 / -1.5 m.
+User ruling: the old (filtered) position is correct.
+=> Check the DJI Terra settings before you re-export. A re-export with the
+   "FIXED" settings would move every label cell by 1.8 m.
+All numbers below use the unfiltered cloud shifted back by +1.0 / +1.5 m.
+
+CHM CHECK, 0.5 m p98, unfiltered - filtered
+                      n pixels   median   p05     p95    |d| median
+as exported, all      18.2 M     -0.007   -7.44   +7.54   1.295
+as exported, canopy   11.0 M     -0.748   -8.54   +3.51   1.574
+shifted back, all     18.2 M     -0.003   -0.15   +0.09   0.020
+shifted back, canopy  11.0 M     -0.005   -0.26   +0.10   0.024
+(canopy = filtered CHM >= 1.37 m; metres)
+
+POINTS
+                         filtered        unfiltered      ratio
+all points               1,616,713,012   1,908,171,321   1.180
+first returns (grid)                     1,461,644,736   1.183
+canopy first returns (>= 1.37 m)                         1.087
+The filter removed far more ground / low returns than canopy returns.
+
+CELL CHANGE, unfiltered - filtered (fill >= 0.9 in both)
+grid        cells   d cover137                 cells with   d p98_can (m)
+                    median  p05     p95       cover up      median  p05    p95
+NISAR 20 m  11,194  -0.020  -0.056  -0.004    1.8 %         -0.005  -0.08  +0.06
+PALSAR 2025  7,565  -0.020  -0.056  -0.005    1.3 %         -0.005  -0.08  +0.07
+(PALSAR 2019 / 2021 / 2023 / 2024: the same as 2025 within 0.001.)
+
+other bands, PALSAR 2025, median change:
+  cover_h02 -0.023   cover_h1 -0.021   cover_h2 -0.018   cover_h5 -0.013
+  p90_can   -0.002 m p98_all  -0.051 m mean_all -0.125 m
+  (mean_all and p98_all include the extra low returns; the *_can bands do not.)
+
+by filtered cover137, PALSAR 2025:
+cover137      cells   d cover137   d p98_can   k4r changed
+0.01 - 0.1        2   -0.014       -0.026       0.0 %
+0.1  - 0.3    1,691   -0.020       -0.010       2.0 %
+0.3  - 0.5    5,575   -0.020       -0.004       1.2 %
+0.5  - 1.0      297   -0.016       +0.002       5.7 %
+
+CLASS CHANGE
+scheme  grid         cells   changed
+k4h     NISAR 20 m   11,194  1.2 %
+k4h     PALSAR 2025   7,565  1.1 %
+k4r     PALSAR 2025   7,565  1.5 %   (2019-2024: 1.6-1.7 %)
+k3r     PALSAR 2025   7,565  0.9 %   (2019-2024: 0.8-0.9 %)
+
+k4r, PALSAR 2025 (rows filtered, columns unfiltered)
+           C1   C2   C3    C4    all
+C1          1    0    0     0      1
+C2          0   94    0     0     94
+C3          0   16  464    67    547
+C4          0   33    0  6890   6923
+all         1  143  464  6957   7565
+C1 low sparse, C2 mid sparse, C3 mid dense, C4 tall open.
+C3 loses 15 % of its cells (to C4 and C2); C2 grows from 94 to 143.
+
+k3r, PALSAR 2025
+           C1   C2    C3    all
+C1          6    0     0      6
+C2          2  468    65    535
+C3          0    2  7022   7024
+all         8  470  7087   7565
+
+DECISION RULE (fixed in the plan before the run)
+not needed: median |d cover137| <= 0.01 and class change <= 3 %   -> cover fails
+needed:     median d cover137 >= 0.03 or class change >= 10 %     -> neither
+=> between: judgement above.
+
+WHY THE CLASS EFFECT CAN BE LARGER AT OTHER SITES
+2025 k4r label cells per site (C1 / C2 / C3 / C4):
+  Biota track     1 /   94 /  547 / 6923
+  Bunda Extra   130 /  341 / 1342 /  640
+  Country Downs   0 /  169 /  838 / 2335
+  South Dampier 1135 / 2246 / 688 / 1805
+  9 Mile         16 /  786 /    8 / 2284
+Biota has few cells near the C3 boundary. Bunda Extra and Country Downs have many.
+
+COMPARISON WITH THE EARLIER STAND-IN TEST
+retro_2d\filter_test.py (YJ25_1, lasthin3d 5 cm): cover137 +0.045 to +0.06.
+The real Terra filter at Biota: +0.020 (filtered - unfiltered). So it is smaller
+than the stand-in at this site, not larger as feared.
+
+CHECKS
+- Copy: size and point count equal the N:\ file.
+- process_sites.ps1: height cloud point count = source.
+- Gridding: all first returns in each grid, percentile error <= 0.007 m.
+- compare() self-test on identical grids: all differences 0.
+- Shift method recovered a known 1.0 / 1.5 m shift exactly.
+
+FILES (292 GB, G: has 418 GB free)
+G:\Dampier\Dampier Lidar 2026\Biota track\Biota track unf\
+  biota_track_unf.las                               copy of N:\Biota track FIXED unf.las
+  biota_track_unf_ground_gndthin_height.las         height cloud, unfiltered position
+  biota_track_unf_ground_gndthin_height_shift.las   moved +1.0 / +1.5 m (old position)
+  biota_track_unf_ground_gndthin_height_canopy_p98.tif, ..._dem_0.5m.tif, tiles\
+This folder is one level below the site folder on purpose: the
+*\*_ground_gndthin_height_denoise.las globs must not find these clouds.
+
+CRS NOTE 2026-11-03
+The unf export is labelled WGS 84 / UTM 51S; the filtered export is GDA2020 / MGA 51.
+The -1.00 / -1.51 m shift equals the reversed GDA94 -> GDA2020 vector (-0.98 / -1.52 m): DJI Terra datum, not transcription.
+Reprojection is required to match grids. See G:\python\crs_audit\CHECKPOINT.md.

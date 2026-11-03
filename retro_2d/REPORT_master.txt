@@ -1,0 +1,178 @@
+REPORT - retro_2d master: Dampier 2019-2025 structure classes
+==============================================================
+2026-10-30. All retro_2d results in one place.
+
+
+KEY POINTS
+----------
+- Own-year models: kappa 0.57-0.62.
+- The 2025 model used on earlier years: kappa 0.29-0.43.
+- So the 2025 model does NOT transfer to earlier images.
+- Cause: the year signature (image shift between years).
+- Use the own-year models, not the 2025 model.
+- k3r and k4r have about the same kappa.
+- k3r has a better weakest class (F1 0.64-0.66 vs 0.53-0.58).
+- Map changes between years are NOT a trend.
+
+
+CLASS SETS
+----------
+k4r  0 none | C1 low sparse | C2 mid sparse | C3 mid dense | C4 tall open
+k3r  0 none | C1 low sparse | C2 mid dense  | C3 tall open
+
+          cover   p98 m   bootstrap ARI
+k4r C1    0.08    4.3     0.822
+k4r C2    0.17    7.5
+k4r C3    0.49    7.7
+k4r C4    0.33   10.8
+k3r C1    0.10    5.0     0.931
+k3r C2    0.46    7.3
+k3r C3    0.31   10.4
+
+Both: fitted on 2025 LiDAR cells, all checks pass.
+
+
+MODELS
+------
+own     one model per year, trained on that year's images
+2025m   the 2025 model, used on every year's images
+Labels  2025/2026 LiDAR, same cells every year
+Test    stratified 5-fold K-fold (2025m: 2025 folds)
+
+
+KAPPA (K-fold, all label cells)
+-------------------------------
+        k4r    k4r    k3r    k3r
+year    own    2025m  own    2025m
+2019    0.57   0.37   0.62   0.36
+2021    0.58   0.43   0.61   0.43
+2023    0.58   0.29   0.60   0.31
+2024    0.61   0.38   0.60   0.36
+2025    0.60   0.60   0.59   0.59
+
+
+OVERALL ACCURACY (K-fold)
+-------------------------
+        k4r    k4r    k3r    k3r
+year    own    2025m  own    2025m
+2019    0.71   0.58   0.78   0.64
+2021    0.71   0.60   0.77   0.65
+2023    0.72   0.53   0.77   0.58
+2024    0.74   0.57   0.76   0.59
+2025    0.72   0.72   0.75   0.75
+
+Note: OA is higher for k3r only because it has fewer classes.
+Kappa is the fair comparison.
+
+
+WEAKEST CLASS F1 (K-fold)
+-------------------------
+        k4r       k4r       k3r       k3r
+year    own       2025m     own       2025m
+2019    0.53 C2   0.29 C1   0.64 C1   0.30 C1
+2021    0.55 C2   0.40 C3   0.66 C1   0.49 C2
+2023    0.55 C2   0.12 C1   0.66 C1   0.26 C1
+2024    0.57 C2   0.40 C3   0.66 C2   0.43 C2
+2025    0.58 C2   0.58 C2   0.66 C2   0.66 C2
+
+
+KAPPA BY LABEL SOURCE (K-fold)
+------------------------------
+        Dampier 2026 cells        Yawuru 2025 cells
+        k4r         k3r           k4r         k3r
+year    own 2025m   own 2025m     own 2025m   own 2025m
+2019    .52  .29    .55  .27      .58  .35    .63  .33
+2021    .52  .41    .54  .38      .59  .32    .62  .38
+2023    .53  .23    .53  .23      .58  .27    .61  .30
+2024    .55  .35    .53  .28      .64  .31    .63  .42
+2025    .54  .54    .52  .52      .62  .62    .65  .65
+
+
+2025m: FIXED vs K-FOLD (kappa)
+------------------------------
+fixed = final 2025 model on the year's cells.
+kfold = 2025 fold model that did not train on that ground.
+
+        k4r            k3r
+year    fixed  kfold   fixed  kfold
+2019    0.36   0.37    0.37   0.36
+2021    0.43   0.43    0.43   0.43
+2023    0.29   0.29    0.31   0.31
+2024    0.38   0.38    0.36   0.36
+
+Same result. The image shift, not the ground, sets the error.
+
+
+MAP CLASSES, MAINLAND (% of valid pixels)
+-----------------------------------------
+k4r own                     k4r 2025m
+year  none C1 C2 C3 C4      none C1 C2 C3 C4
+2019     9 19 26 30 16        15 23 37  8 18
+2021    12 13 28 28 20         9 21 32 19 19
+2023    15 17 38 20 11         7 19 21 40 13
+2024    14 14 26 22 24        11 21 31 17 20
+2025     9 23 28 25 15         9 23 28 25 15
+
+k3r own                     k3r 2025m
+year  none C1 C2 C3         none C1 C2 C3
+2019     9 29 38 24         16 41 14 30
+2021    11 25 35 29          9 39 29 23
+2023    14 40 28 18          8 30 48 14
+2024    13 29 29 29         12 38 25 24
+2025    10 38 34 18         10 38 34 18
+
+
+MAP CLASSES, PINDAN (% of valid pixels)
+---------------------------------------
+k4r own                     k4r 2025m
+year  none C1 C2 C3 C4      none C1 C2 C3 C4
+2019     2 15 30 27 26         6 11 47 11 24
+2021     2  8 31 31 28         2 14 32 27 26
+2023     8 13 43 23 14         2 13 19 49 17
+2024     5  8 27 20 40         5 12 27 21 34
+2025     3 12 30 33 21         3 12 30 33 21
+
+k3r own                     k3r 2025m
+year  none C1 C2 C3         none C1 C2 C3
+2019     2 23 35 40          7 30 16 47
+2021     2 22 36 40          2 29 40 29
+2023     8 35 31 26          2 22 59 17
+2024     5 21 26 48          6 24 30 40
+2025     4 26 45 25          4 26 45 25
+
+One model (2025m) does not make the years steady.
+Class shares swing by up to ~40 points between years.
+
+
+EARLIER WORK (superseded)
+-------------------------
+v1  5 classes, 8 m cut, 2025 only: K-fold OA 0.672.
+v2  frozen k4h classes: never run.
+
+
+CAVEATS
+-------
+1. Year signature: image year is recoverable from the bands.
+   Every cross-year comparison is confounded.
+2. Labels are 2025/2026 LiDAR. K-fold does not show the
+   real accuracy for earlier years.
+3. Dampier 2026 clouds are density-filtered; Yawuru not.
+   Re-run all when the unfiltered re-export arrives.
+4. "none" is 91 % Yawuru cells; tall classes are mostly
+   Dampier cells. Part of what the model learns is site.
+5. 2025 grid differs (24.28 m vs 24.10 m). Reproject first.
+6. YA25_1-5 are single-return LiDAR.
+
+
+FILES  (G:\python\dampier_veg_timeseries\retro_2d\)
+-----
+Maps, own      outputs\<year>\<set>\XGB_DP_PALSAR_S1_S2_<year>_2D_<set>.tif
+Maps, 2025m    outputs\<year>\<set>_m2025\XGB_DP_PALSAR_S1_S2_<year>_2D_<set>_m2025.tif
+Mainland clip  same names + _mainland.tif
+Histograms     outputs\hist_<set>_mainland.png
+               outputs\hist_<set>_m2025_mainland.png
+Metrics        outputs\<year>\<folder>\metrics.csv
+Details        REPORT_retro_2d.md (k4r), REPORT_retro_k3r.txt (k3r)
+Scripts        refit_classes.py, classify_retro.py,
+               transfer_2025.py, hist_classes.py, report_master.py
+<set> = k4r or k3r.  Maps: uint8, nodata 255.

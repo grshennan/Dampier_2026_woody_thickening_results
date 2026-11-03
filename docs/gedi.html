@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEDI Check</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html" aria-current="page">6 GEDI</a>
+<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
+<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>6 · Check against GEDI</h1>
+<p class="sub">GEDI L2A RH98 (spaceborne LiDAR, 25 m footprints) against the 2026 drone LiDAR CHM in the same footprint.</p>
+
+<h2>Result</h2>
+<div class="wrap"><table>
+<tr><th>GEDI year</th><th class="n">n shots</th><th>vs footprint CHM p90</th><th>Report</th></tr>
+<tr><td>2025 (v003)</td><td class="n">154</td><td>bias +0.57 m, RMSE 1.84 m, r 0.70</td><td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_gedi_2025_wiggle.md">wiggle</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_gedi_2025_fire.md">fire</a></td></tr>
+<tr><td>2024</td><td class="n">15</td><td>r 0.66</td><td rowspan="3"><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_gedi_earlier_years.md">earlier years</a></td></tr>
+<tr><td>2021</td><td class="n">228</td><td>r 0.74</td></tr>
+<tr><td>2019</td><td class="n">19</td><td>r 0.85</td></tr>
+</table></div>
+<ul>
+<li><strong>RH98 corresponds to CHM p90</strong>, not p98: against p98 the bias is +2.2 m.</li>
+<li>No loss of skill over a 7-year gap. The LiDAR heights and GEDI agree at footprint scale.</li>
+<li>The best global geolocation offset is only 2.5–5 m and gains +0.04–0.08 in r. v003 positions are better than v002.</li>
+<li>Fire (NAFI) does not explain the error: fire-free shots r 0.66 against 0.70 for all.</li>
+<li><strong>No GEDI data after 2025-07-09</strong> (CMR, checked 2026-10-19). A direct GEDI check of the 2026 maps is not possible.</li>
+</ul>
+
+<h2>2025 GEDI against the 2026 LiDAR</h2>
+<figure><a href="../lidar_2026/outputs/gedi/fire_scatter.png"><img src="../lidar_2026/outputs/gedi/fire_scatter.png" alt="GEDI RH98 against footprint CHM p90 by fire group" loading="lazy"></a>
+<figcaption>RH98 against footprint CHM p90 (v003, nominal position), all shots and by NAFI fire group.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gedi_fire.py">gedi_fire.py</a></figcaption></figure>
+<figure><a href="../lidar_2026/outputs/gedi/wiggle_scatter.png"><img src="../lidar_2026/outputs/gedi/wiggle_scatter.png" alt="GEDI RH98 against footprint CHM p98 at three offsets" loading="lazy"></a>
+<figcaption>RH98 against footprint CHM p98 at the nominal, best global and per-track offsets: bias +2.2 m against p98.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gedi_wiggle.py">gedi_wiggle.py</a></figcaption></figure>
+<figure><a href="../lidar_2026/outputs/gedi/wiggle_surface.png"><img src="../lidar_2026/outputs/gedi/wiggle_surface.png" alt="Geolocation offset search surface" loading="lazy"></a>
+<figcaption>Geolocation offset search: r(RH98, CHM p98) for shifts of ±30 m. Best global offset (−2.5, +2.5) m for v003.</figcaption></figure>
+<figure><a href="../lidar_2026/outputs/gedi/fire_map.png"><img src="../lidar_2026/outputs/gedi/fire_map.png" alt="Map of GEDI shots and NAFI fire groups" loading="lazy"></a>
+<figcaption>Shot locations by fire group. The fire groups are close to the sites, so fire and site cannot be separated.</figcaption></figure>
+
+<h2>Earlier GEDI years against the 2026 LiDAR</h2>
+<div class="thumbs">
+<figure><a href="../lidar_2026/outputs/gedi/2024/wiggle_scatter.png"><img src="../lidar_2026/outputs/gedi/2024/wiggle_scatter.png" alt="2024 GEDI scatter" loading="lazy"></a><figcaption>2024 (n 15)</figcaption></figure>
+<figure><a href="../lidar_2026/outputs/gedi/2021/wiggle_scatter.png"><img src="../lidar_2026/outputs/gedi/2021/wiggle_scatter.png" alt="2021 GEDI scatter" loading="lazy"></a><figcaption>2021 (n 228)</figcaption></figure>
+<figure><a href="../lidar_2026/outputs/gedi/2019/wiggle_scatter.png"><img src="../lidar_2026/outputs/gedi/2019/wiggle_scatter.png" alt="2019 GEDI scatter" loading="lazy"></a><figcaption>2019 (n 19)</figcaption></figure>
+</div>
+<p>Every 2021 and 2024 shot burnt between the GEDI date and the LiDAR. The within-site fire-count effect is
+site-dependent (−0.57 to +0.39 m per burnt period).</p>
+
+<h2>Code</h2>
+<ul>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gedi_site_shots.py">gedi_site_shots.py</a> (shots over the sites, v002 + v003),
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gedi_wiggle.py">gedi_wiggle.py</a> (footprint CHM, offset search),
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/gedi_fire.py">gedi_fire.py</a> (NAFI groups); all take <code>--year</code>.</li>
+<li>Outputs: <code>lidar_2026\outputs\gedi\</code>. GEDI for the 2019–2025 series: <code>G:\python\GEDI\</code>
+(see <a href="side_roads.html">side roads</a>).</li>
+</ul>
+</main>
+</body>
+</html>

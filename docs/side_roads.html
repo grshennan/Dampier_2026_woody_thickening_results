@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Side Roads</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
+<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html" aria-current="page">Side roads</a>
+<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>Side roads</h1>
+<p class="sub">Work done on the way. Not part of the 2026 method. One line each, with the link.</p>
+
+<h2>Index</h2>
+<div class="wrap"><table>
+<tr><th>Road</th><th>Result in one line</th><th>Link</th></tr>
+<tr><td>2019–2025 structure classes from PALSAR-2 + S1 + S2 (<code>retro_2d</code>)</td>
+<td>k4r / k3r maps per year, K-fold kappa 0.58–0.62; the 2025 model does not transfer to earlier years (0.29–0.43)</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_master.txt">REPORT_master.txt</a></td></tr>
+<tr><td>Year signature</td><td>acquisition year recoverable from the bands at 80.7 %: confounds every cross-year height statement</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/woody_thickening_splice_1/REPORT_year_signature.md">REPORT_year_signature.md</a></td></tr>
+<tr><td>PALSAR-2 shift, dates, rain</td><td>shift mainly a 2019 decomposition anomaly; maps step at mosaic strip seams; current-season rain shifts the bands; DN calibration open</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_palsar_shift.txt">shift</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_palsar_date.txt">date</a>,
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_palsar_wetseason.txt">wet season</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_rain.txt">rain</a></td></tr>
+<tr><td>Date layer as a feature</td><td>identifies site groups, kappa +0.004–0.008, seam steps larger: not recommended</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_date_feature.txt">REPORT_date_feature.txt</a></td></tr>
+<tr><td>2019–2025 4-class maps and canopy-height regression; CHM + GEDI hybrid</td><td>RF primary; GEDI RH98 ≈ CHM p90, but R² ≈ 0 per shot: trends only over aggregates</td>
+<td><code>CATALOG.md</code> <span class="src">(not in this repo)</span>, <code>chm_regression\</code> <span class="src">(not in this repo)</span></td></tr>
+<tr><td>Class vs regression; effective resolution 2025</td><td>paused at Stage R2</td>
+<td><code>CHECKPOINT.md</code> <span class="src">(not in this repo)</span></td></tr>
+<tr><td>Woody thickening (fire history × height increase)</td><td>paused 2026-08-24: premise undermined by the year signature</td>
+<td><code>woody_thickening_splice_1\</code> <span class="src">(not in this repo)</span></td></tr>
+<tr><td>Site covariates as features (rain, soil, DEM, northing, easting)</td><td>+0.028 OA but act as site keys; map artefacts: not for a product</td>
+<td><a href="nisar_accuracy/index.html">diagnosis §2</a></td></tr>
+<tr><td>NAFI fire history as a feature</td><td>no gain beyond the noise; fire bands are site keys at 250 m</td>
+<td><a href="nisar_accuracy/index.html">diagnosis §2.8</a></td></tr>
+<tr><td>Structure × NISAR, site offsets, burn age</td><td>cover × p98 best single-feature fit (R² 0.56); 2 dB HV site offsets; fire explains part</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_structure_sar.md">REPORT_structure_sar.md</a></td></tr>
+<tr><td>One-source maps disagree</td><td>S2-only vs NISAR-only maps agree on 51 % of the mainland (lift 0.18): open</td>
+<td><a href="nisar_accuracy/index.html">diagnosis</a></td></tr>
+<tr><td>DJI Terra 5 cm filter: unfiltered vs filtered cloud</td><td>heights unchanged; cover −0.02; class change Biota 1.5 %, South Dampier 8.1 %</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_biota.txt">Biota</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_south_dampier.txt">South Dampier</a></td></tr>
+<tr><td>CRS audit</td><td>relabelling EPSG:7851 → 32751 withdrawn; reprojection fix pending</td>
+<td><code>crs_audit\CHECKPOINT.md</code> <span class="src">(not in this repo)</span></td></tr>
+<tr><td>Natural 2-D structure classes</td><td>no natural thresholds; stable k = 2–4 (used in the story, step 3)</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/structure_2d/REPORT_structure_2d.md">REPORT_structure_2d.md</a></td></tr>
+</table></div>
+
+<h2>Figures</h2>
+<div class="thumbs">
+<figure><a href="../retro_2d/outputs/hist_k4r_mainland.png"><img src="../retro_2d/outputs/hist_k4r_mainland.png" alt="k4r class shares per year" loading="lazy"></a>
+<figcaption>retro_2d k4r class shares, 2019–2025: separate model per year, not a trend.</figcaption></figure>
+<figure><a href="../retro_2d/outputs/palsar_shift/shift_palsar.png"><img src="../retro_2d/outputs/palsar_shift/shift_palsar.png" alt="PALSAR-2 median shift by year" loading="lazy"></a>
+<figcaption>PALSAR-2 median shift by year, mainland vs label cells.</figcaption></figure>
+<figure><a href="../retro_2d/outputs/rain/band_vs_rain.png"><img src="../retro_2d/outputs/rain/band_vs_rain.png" alt="Band median vs wet-season rain" loading="lazy"></a>
+<figcaption>Band medians on fixed ground follow wet-season rain (S1 and PALSAR HV ρ +0.9).</figcaption></figure>
+<figure><a href="../nisar_2026/outputs/diagnosis/cov_map_quicklook.png"><img src="../nisar_2026/outputs/diagnosis/cov_map_quicklook.png" alt="Map with site covariates vs reference" loading="lazy"></a>
+<figcaption>Site covariates: straight-edged map artefacts, so not for a product.</figcaption></figure>
+<figure><a href="../nisar_2026/outputs/diagnosis/fireFF_map_quicklook.png"><img src="../nisar_2026/outputs/diagnosis/fireFF_map_quicklook.png" alt="Map with NAFI fire frequency vs reference" loading="lazy"></a>
+<figcaption>NAFI fire frequency as a feature: map agrees 0.92 with the reference; changes do not follow scar edges.</figcaption></figure>
+<figure><a href="../lidar_2026/outputs/structure_sar/figures/pooled/cutoff_compare.png"><img src="../lidar_2026/outputs/structure_sar/figures/pooled/cutoff_compare.png" alt="Cover cutoff 0.2 to 5 m against NISAR" loading="lazy"></a>
+<figcaption>Cover cutoff 0.2 / 1 / 1.37 / 2 / 5 m against NISAR backscatter.</figcaption></figure>
+</div>
+<p>More figures: <code>chm_regression\outputs\figures\</code> <span class="src">(not in this repo)</span>,
+<code>class_vs_regression\figures\</code> <span class="src">(not in this repo)</span>,
+<code>woody_thickening_splice_1\figures\</code> <span class="src">(not in this repo)</span>,
+<code>lidar_2026\outputs\vci_by_class\</code> <span class="src">(not in this repo)</span>.</p>
+</main>
+</body>
+</html>
