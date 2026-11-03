@@ -1,4 +1,5 @@
 # Dampier Peninsula vegetation structure, 2026
+Summary of results from our drone LiDAR sampling trip to the Dampier Peninsula, Australia.
 
 **Results site: https://grshennan.github.io/Dampier_2026_woody_thickening_results/**
 
