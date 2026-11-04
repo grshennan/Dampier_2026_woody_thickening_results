@@ -37,9 +37,15 @@ def labels():
     return lab
 
 
-def chm_path(site):
-    chms = sorted(Path(to_local(L.ROOT_WIN), site).glob("*canopy_p98*.tif"))
-    assert len(chms) == 1, f"{site}: expected one CHM, found {chms}"
+def chm_path(site, variant="filt"):
+    """variant 'filt' = the DJI Terra 5 cm filtered CHM (default, classification track); 'unf' = the unfiltered
+    re-export CHM in <Site>\\<Site> unf\\ (PLAN_unf_reexport.md, 2026-11-04)."""
+    if variant == "unf":
+        chms = sorted(Path(to_local(L.ROOT_WIN), site, f"{site} unf").glob("*_unf_*canopy_p98.tif"))
+    else:
+        assert variant == "filt", variant
+        chms = sorted(Path(to_local(L.ROOT_WIN), site).glob("*canopy_p98*.tif"))
+    assert len(chms) == 1, f"{site} ({variant}): expected one CHM, found {chms}"
     return chms[0]
 
 

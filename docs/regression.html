@@ -10,58 +10,97 @@
 <main>
 <nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
 <a href="classification.html">3 Classification</a><a href="regression.html" aria-current="page">4 Regression</a>
-<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
-<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
-<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+<a href="p98_residual.html">5 p98 residual</a><a href="time_pattern.html">6 Time pattern</a><a href="gedi.html">7 GEDI</a>
+<a href="side_roads.html">Side roads</a><a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
 
-<h1>4 · Regression: height and cover directly</h1>
-<p class="sub">Random forest, 500 trees (max_features 0.33, leaf 5), 39,023 label px, random stratified 5-fold, seeds 0–2.</p>
+<h1>4 · Regression: height and cover, MTE</h1>
+<p class="sub">Multi-task bounded MLP ensemble (MTE), 5 members, 39,022 label px, random stratified 5-fold
+(site × cover quintile). Targets per 20 m px: px mean, p98, cover 1.37 m. EPSG:7851.</p>
 
-<h2>Result</h2>
-<figure><a href="../class_defs/outputs/regression/fig_maps_ALL.png"><img src="../class_defs/outputs/regression/fig_maps_ALL.png" alt="Height (px mean) and cover maps 2026" loading="lazy"></a>
-<figcaption>Px mean height (m) and cover at 1.37 m, RF on the ALL stack (NISAR + S1 + S2).
-Maps: <code>height_mean_ALL.tif</code> <span class="src">(not yet available)</span>,
-<code>cover137_ALL.tif</code> <span class="src">(not yet available)</span>,
-<code>height_p98_ALL.tif</code> <span class="src">(not yet available)</span>
-(20 m, EPSG:32751, float32, nodata −9999; 99.9 % of mainland px valid).
-<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/fig_regression_maps.py">fig_regression_maps.py</a></figcaption></figure>
+<h2>Result, 2026 (NISAR + S1 + S2)</h2>
+<!-- BEGIN table:mte_kfold -->
+<div class="wrap"><table><tr><th>target</th><th>group</th><th class=n>R²</th><th class=n>RMSE</th><th class=n>bias</th></tr><tr><td>mean</td><td>pooled</td><td class=n>0.819 (0.004)</td><td class=n>0.678 (0.012)</td><td class=n>+0.013</td></tr><tr><td>mean</td><td>Dampier</td><td class=n>0.797 (0.005)</td><td class=n>0.703 (0.014)</td><td class=n>+0.016</td></tr><tr><td>mean</td><td>Yawuru kept</td><td class=n>0.917 (0.006)</td><td class=n>0.422 (0.020)</td><td class=n>-0.015</td></tr><tr><td>p98</td><td>pooled</td><td class=n>0.731 (0.006)</td><td class=n>1.657 (0.023)</td><td class=n>+0.035</td></tr><tr><td>p98</td><td>Dampier</td><td class=n>0.635 (0.010)</td><td class=n>1.727 (0.026)</td><td class=n>+0.021</td></tr><tr><td>p98</td><td>Yawuru kept</td><td class=n>0.905 (0.005)</td><td class=n>0.904 (0.026)</td><td class=n>+0.146</td></tr><tr><td>cover</td><td>pooled</td><td class=n>0.843 (0.006)</td><td class=n>0.087 (0.002)</td><td class=n>+0.001</td></tr><tr><td>cover</td><td>Dampier</td><td class=n>0.811 (0.008)</td><td class=n>0.087 (0.002)</td><td class=n>+0.001</td></tr><tr><td>cover</td><td>Yawuru kept</td><td class=n>0.928 (0.008)</td><td class=n>0.081 (0.005)</td><td class=n>-0.000</td></tr></table></div><p class="src">Fold mean (fold SD), 5-member ensemble. RMSE and bias in m; cover as a fraction.</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2026/fold_metrics.csv">class_defs/outputs/mte_retro/2026/fold_metrics.csv</a> (2026-11-04 18:39)</p>
+<!-- END table:mte_kfold -->
 
-<h3>K-fold, by stack (fold mean, fold SD)</h3>
-<!-- BEGIN table:reg_kfold -->
-<div class="wrap"><table><tr><th>group</th><th>target</th><th class=n>R² ALL</th><th class=n>R² SAR</th><th class=n>R² MS</th><th class=n>RMSE ALL</th><th class=n>bias ALL</th></tr><tr><td>pooled</td><td>px mean (m)</td><td class=n>0.795 (0.006)</td><td class=n>0.718 (0.006)</td><td class=n>0.754 (0.007)</td><td class=n>0.724 (0.014)</td><td class=n>-0.000</td></tr><tr><td>pooled</td><td>cover 1.37 m</td><td class=n>0.811 (0.005)</td><td class=n>0.754 (0.005)</td><td class=n>0.769 (0.005)</td><td class=n>0.095 (0.001)</td><td class=n>-0.001</td></tr><tr><td>Dampier</td><td>px mean (m)</td><td class=n>0.773 (0.007)</td><td class=n>0.687 (0.005)</td><td class=n>0.734 (0.007)</td><td class=n>0.746 (0.014)</td><td class=n>-0.001</td></tr><tr><td>Dampier</td><td>cover 1.37 m</td><td class=n>0.775 (0.004)</td><td class=n>0.711 (0.005)</td><td class=n>0.734 (0.005)</td><td class=n>0.095 (0.001)</td><td class=n>+0.000</td></tr><tr><td>Yawuru kept</td><td>px mean (m)</td><td class=n>0.879 (0.008)</td><td class=n>0.841 (0.011)</td><td class=n>0.789 (0.008)</td><td class=n>0.508 (0.016)</td><td class=n>+0.010</td></tr><tr><td>Yawuru kept</td><td>cover 1.37 m</td><td class=n>0.903 (0.007)</td><td class=n>0.860 (0.010)</td><td class=n>0.847 (0.008)</td><td class=n>0.094 (0.004)</td><td class=n>-0.009</td></tr></table></div><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_summary.csv">class_defs/outputs/regression/score_summary.csv</a> (2026-11-02 14:41)</p>
-<!-- END table:reg_kfold -->
-<p>ALL = NISAR + S1 + S2 (49); SAR = NISAR + S1 (36); MS = S2 (13). Per source, never blended.
-ALL beats SAR and MS in every group; every gain is beyond 2 fold SD
-(<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_gains.csv">score_gains.csv</a>).</p>
-<p>p98 (separate RF, same rows and folds): K-fold R² 0.724, RMSE 1.68 m (pooled). See <a href="p98_residual.html">5 · p98 residual</a>.</p>
+<figure><a href="../class_defs/outputs/p98_cover/fig_p98_resid_MTE.png"><img src="../class_defs/outputs/p98_cover/fig_p98_resid_MTE.png" alt="Left: MTE p98 height map 2026. Right: p98 residual map." loading="lazy"></a>
+<figcaption>Left: MTE p98 height (m), 2026. Right: the p98 residual (<a href="p98_residual.html">5 · p98 residual</a>).
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/fig_p98_cover.py">fig_p98_cover.py</a> <code>--model MTE</code></figcaption></figure>
 
-<h2>Cover × height: what was tested on the way</h2>
+<h3>Maps (20 m, EPSG:7851, float32, nodata −9999)</h3>
+<div class="wrap"><table>
+<tr><th>Product</th><th>File</th><th class="n">Mean, pindan</th><th class="n">Map max</th><th class="n">Label max</th></tr>
+<tr><td>px mean (m)</td><td><code>height_mean_MTE.tif</code> <span class="src">(not yet available)</span></td><td class="n">1.83</td><td class="n">13.31</td><td class="n">13.11</td></tr>
+<tr><td>p98 (m)</td><td><code>height_p98_MTE.tif</code> <span class="src">(not yet available)</span></td><td class="n">6.34</td><td class="n">20.82</td><td class="n">18.92</td></tr>
+<tr><td>cover 1.37 m</td><td><code>cover137_MTE.tif</code> <span class="src">(not yet available)</span></td><td class="n">0.377</td><td class="n">0.999</td><td class="n">0.998</td></tr>
+<tr><td>member SD</td><td><code>height_mean_MTEsd.tif</code> <span class="src">(not yet available)</span>,
+<code>height_p98_MTEsd.tif</code> <span class="src">(not yet available)</span>,
+<code>cover137_MTEsd.tif</code> <span class="src">(not yet available)</span></td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+<tr><td>clamped inputs per px</td><td><code>n_clamped_MTE.tif</code> <span class="src">(not yet available)</span></td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+</table></div>
+<p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_mte_retro.txt">REPORT_mte_retro.txt</a> §5 (fixed text).
+p98 ≥ mean on every map px. 64,391,592 valid px (mainland, finite stack).</p>
+
+<h2>Method</h2>
 <ul>
-<li>Px mean = cover × mean height above 1.37 m + (1 − cover) × mean height below. Modelling the parts and
-combining them gives the same skill as the direct model (|ΔR²| ≤ 0.009). Direct kept.</li>
-<li>GLCM texture (72 features) adds +0.01 to +0.02 R², but its 100 m windows overlap the test px (optimistic).
-Not in the maps.</li>
-<li>Burnt Yawuru rows added back: no change on the shared rows (ΔR² −0.000).</li>
+<li>One net, 3 bounded heads: mean = softplus, p98 = mean + softplus, cover = sigmoid. Hidden 512-256, dropout 0.2.</li>
+<li>Inputs clamped to the training p0.5 / p99.5 (12.6 % of test rows touch the clamp). 5 seeds; map = member mean.</li>
+<li>Configuration chosen on the test folds: optimistic. All 25 fits stop before the epoch limit.</li>
+<li>Stratified K-fold only. No leave-site-out.</li>
 </ul>
-<figure><a href="../class_defs/outputs/cover_height/fig_r2_stacks.png"><img src="../class_defs/outputs/cover_height/fig_r2_stacks.png" alt="RF R2 by stack, without and with GLCM" loading="lazy"></a>
-<figcaption>K-fold R² by stack, without (blue) and with GLCM (orange). ALL is best for every target.
-<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/cover_height_report.py">cover_height_report.py</a></figcaption></figure>
-<figure><a href="../class_defs/outputs/cover_height/fig_obs_pred.png"><img src="../class_defs/outputs/cover_height/fig_obs_pred.png" alt="Observed vs predicted, ALL+G" loading="lazy"></a>
-<figcaption>Observed vs predicted (ALL + GLCM, seed 0): cover, mean height above 1.37 m, px mean direct and combined.
-Top: Dampier; bottom: Yawuru kept.</figcaption></figure>
-<figure><a href="../nisar_2026/outputs/figures/fig_regression.png"><img src="../nisar_2026/outputs/figures/fig_regression.png" alt="First 2026 RF regression, naive and K-fold" loading="lazy"></a>
-<figcaption>History: the first 2026 RF (GCOV stack, Dampier only, 2026-10-21). K-fold R² mean 0.77, p90 0.66, p98 0.62.
-The naive (resubstitution) row shows why only K-fold numbers are reported.</figcaption></figure>
+<p><strong>Why MTE.</strong> A random forest (500 trees) was the first model. A single-task MLP beat it on mean and cover,
+not on p98, and clipped 5–11 % of map px to 0. The MTE beat the RF on all 3 targets (pooled R² +0.027 mean,
++0.011 p98, +0.034 cover) and on the residual (+0.036), with no clip and p98 ≥ mean. These comparisons are from the
+filtered-LiDAR run; the model comparison is in <a href="side_roads.html">side roads</a>.</p>
+
+<h3>Sensor importance, 2026</h3>
+<!-- BEGIN table:mte_sensor -->
+<div class="wrap"><table><tr><th>target</th><th class=n>NISAR</th><th class=n>S1</th><th class=n>S2</th></tr><tr><td>mean</td><td class=n>0.79 (0.03)</td><td class=n>0.08 (0.01)</td><td class=n>0.61 (0.02)</td></tr><tr><td>p98</td><td class=n>1.08 (0.04)</td><td class=n>0.13 (0.02)</td><td class=n>0.34 (0.02)</td></tr><tr><td>cover</td><td class=n>0.50 (0.03)</td><td class=n>0.10 (0.01)</td><td class=n>0.58 (0.01)</td></tr></table></div><p class="src">Drop in K-fold R² when all bands of one sensor are permuted, fold mean (fold SD). The drops do not add up to the R²: the sensors share information.</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2026/importance.csv">class_defs/outputs/mte_retro/2026/importance.csv</a> (2026-11-04 18:39)</p>
+<!-- END table:mte_sensor -->
+<p>NISAR leads for height (p98 most); S2 leads for cover, NISAR close; S1 adds little.</p>
+
+<h2 id="retro">2019–2025: the same MTE on PALSAR-2 + S1 + S2</h2>
+<p>One model per year, same method and configuration. 2019–2025 stack: PALSAR + S1 + S2 (20 bands; no NISAR
+before 2026). Labels: the same 5 Dampier 2026 sites (unfiltered) + 13 Yawuru 2025 areas; burnt areas kept
+2019–2025 (fire = noise, user), dropped in 2026. Script <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/mte_retro.py">mte_retro.py</a>.</p>
+<!-- BEGIN table:mte_retro -->
+<div class="wrap"><table><tr><th>year</th><th class=n>label px</th><th class=n>R² mean</th><th class=n>R² p98</th><th class=n>R² cover</th><th class=n>R² resid</th><th class=n>RMSE mean (m)</th><th class=n>RMSE p98 (m)</th><th class=n>map mean, pindan (m)</th><th class=n>map p98, pindan (m)</th></tr><tr><td>2019</td><td class=n>29,793</td><td class=n>0.725</td><td class=n>0.713</td><td class=n>0.692</td><td class=n>0.493</td><td class=n>0.79</td><td class=n>1.67</td><td class=n>2.41</td><td class=n>8.01</td></tr><tr><td>2021</td><td class=n>29,795</td><td class=n>0.741</td><td class=n>0.712</td><td class=n>0.736</td><td class=n>0.490</td><td class=n>0.77</td><td class=n>1.67</td><td class=n>2.51</td><td class=n>8.21</td></tr><tr><td>2023</td><td class=n>29,799</td><td class=n>0.729</td><td class=n>0.699</td><td class=n>0.741</td><td class=n>0.474</td><td class=n>0.79</td><td class=n>1.71</td><td class=n>1.98</td><td class=n>7.08</td></tr><tr><td>2024</td><td class=n>29,800</td><td class=n>0.782</td><td class=n>0.723</td><td class=n>0.771</td><td class=n>0.506</td><td class=n>0.71</td><td class=n>1.64</td><td class=n>2.40</td><td class=n>8.08</td></tr><tr><td>2025</td><td class=n>29,266</td><td class=n>0.769</td><td class=n>0.709</td><td class=n>0.786</td><td class=n>0.494</td><td class=n>0.73</td><td class=n>1.68</td><td class=n>2.25</td><td class=n>7.69</td></tr><tr><td>2026</td><td class=n>39,022</td><td class=n>0.819</td><td class=n>0.731</td><td class=n>0.843</td><td class=n>0.498</td><td class=n>0.68</td><td class=n>1.66</td><td class=n>1.83</td><td class=n>6.34</td></tr></table></div><p class="src">K-fold R² and RMSE: pooled, mean over 5 folds (stratified, site × cover quintile), 5-member ensemble. 2019-2025 PALSAR + S1 + S2; 2026 NISAR + S1 + S2 (burnt Yawuru areas dropped). Unfiltered 2026 LiDAR; EPSG:7851. Map means: pindan boundary, each year on its own grid. Sources: the same files for each year in <code>class_defs\outputs\mte_retro\&lt;year&gt;\</code>.</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2019/fold_metrics.csv">class_defs/outputs/mte_retro/2019/fold_metrics.csv</a> (2026-11-04 18:30); <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2026/fold_metrics.csv">class_defs/outputs/mte_retro/2026/fold_metrics.csv</a> (2026-11-04 18:39); <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2025/resid_fold_metrics.csv">class_defs/outputs/mte_retro/2025/resid_fold_metrics.csv</a> (2026-11-04 18:04); <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2024/map_checks.csv">class_defs/outputs/mte_retro/2024/map_checks.csv</a> (2026-11-04 21:10)</p>
+<!-- END table:mte_retro -->
+<ul>
+<li>Skill is flat over the years: R² 0.73–0.78 mean, 0.70–0.72 p98, 0.69–0.79 cover, 0.47–0.51 residual.
+K-fold cannot show the loss backwards in time (labels are 2025 / 2026).</li>
+<li>Against 2026 (NISAR; 0.819 / 0.731 / 0.843): mean −0.04 to −0.09, p98 −0.01 to −0.03, cover −0.06 to −0.15.</li>
+<li>Ridge floor 0.36–0.66: the MTE adds 0.11–0.33.</li>
+<li>Bias ≤ 0.03 m pooled. Yawuru kept p98: +0.16 to +0.22 m every year.</li>
+</ul>
+<p class="src">Maps: <code>E:\nisar_2026\regression\retro\&lt;year&gt;\</code> (<code>{height_mean,height_p98,cover137}_MTE_&lt;year&gt;.tif</code>,
+<code>*_MTEsd_&lt;year&gt;.tif</code>, <code>n_clamped_MTE_&lt;year&gt;.tif</code>, <code>p98_resid{,_w5}_MTE_&lt;year&gt;.tif</code>).</p>
+
+<div class="wip"><strong>Not a trend.</strong> Pindan map means (px mean): 2.41 / 2.51 / 1.98 / 2.40 / 2.25 m (2019–2025), 1.83 m
+(2026). 2023 is low, with no direction. The acquisition year is recoverable from the bands
+(<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/woody_thickening_splice_1/REPORT_year_signature.md">year signature</a>), each year has its own model,
+and the years are on different grids. The time pattern uses per-year ranks for this reason
+(<a href="time_pattern.html">6 · Time pattern</a>).</div>
+
+<h3>Per group</h3>
+<!-- BEGIN table:mte_retro_groups -->
+<div class="wrap"><table><tr><th>year</th><th>target</th><th class=n>Dampier</th><th class=n>Yawuru kept</th><th class=n>Yawuru burnt</th><th class=n>ridge, pooled</th></tr><tr><td>2019</td><td>mean</td><td class=n>0.684</td><td class=n>0.881</td><td class=n>0.728</td><td class=n>0.494</td></tr><tr><td>2019</td><td>p98</td><td class=n>0.598</td><td class=n>0.872</td><td class=n>0.645</td><td class=n>0.577</td></tr><tr><td>2019</td><td>cover</td><td class=n>0.604</td><td class=n>0.900</td><td class=n>0.766</td><td class=n>0.363</td></tr><tr><td>2021</td><td>mean</td><td class=n>0.705</td><td class=n>0.901</td><td class=n>0.664</td><td class=n>0.605</td></tr><tr><td>2021</td><td>p98</td><td class=n>0.600</td><td class=n>0.866</td><td class=n>0.606</td><td class=n>0.589</td></tr><tr><td>2021</td><td>cover</td><td class=n>0.677</td><td class=n>0.912</td><td class=n>0.689</td><td class=n>0.456</td></tr><tr><td>2023</td><td>mean</td><td class=n>0.697</td><td class=n>0.857</td><td class=n>0.647</td><td class=n>0.512</td></tr><tr><td>2023</td><td>p98</td><td class=n>0.585</td><td class=n>0.849</td><td class=n>0.567</td><td class=n>0.515</td></tr><tr><td>2023</td><td>cover</td><td class=n>0.679</td><td class=n>0.901</td><td class=n>0.750</td><td class=n>0.467</td></tr><tr><td>2024</td><td>mean</td><td class=n>0.748</td><td class=n>0.901</td><td class=n>0.807</td><td class=n>0.623</td></tr><tr><td>2024</td><td>p98</td><td class=n>0.614</td><td class=n>0.873</td><td class=n>0.637</td><td class=n>0.581</td></tr><tr><td>2024</td><td>cover</td><td class=n>0.710</td><td class=n>0.907</td><td class=n>0.828</td><td class=n>0.452</td></tr><tr><td>2025</td><td>mean</td><td class=n>0.737</td><td class=n>0.871</td><td class=n>0.773</td><td class=n>0.659</td></tr><tr><td>2025</td><td>p98</td><td class=n>0.594</td><td class=n>0.856</td><td class=n>0.625</td><td class=n>0.582</td></tr><tr><td>2025</td><td>cover</td><td class=n>0.738</td><td class=n>0.901</td><td class=n>0.796</td><td class=n>0.600</td></tr><tr><td>2026</td><td>mean</td><td class=n>0.797</td><td class=n>0.917</td><td class=n>—</td><td class=n>0.730</td></tr><tr><td>2026</td><td>p98</td><td class=n>0.635</td><td class=n>0.905</td><td class=n>—</td><td class=n>0.664</td></tr><tr><td>2026</td><td>cover</td><td class=n>0.811</td><td class=n>0.928</td><td class=n>—</td><td class=n>0.719</td></tr></table></div><p class="src">K-fold R², fold mean. Yawuru burnt = the 6 areas burnt 2025 → 2026 (kept in training 2019-2025; dropped in 2026: —).</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2019/fold_metrics.csv">class_defs/outputs/mte_retro/2019/fold_metrics.csv</a> (2026-11-04 18:30)</p>
+<!-- END table:mte_retro_groups -->
+<p>Dampier is lower than Yawuru kept in every year (p98 0.59–0.61 vs 0.85–0.87), as in 2026.
+Yawuru burnt is lower than kept: fire after the image year is not handled (user: noise).</p>
+
+<h3>Sensor importance per year</h3>
+<!-- BEGIN table:mte_retro_sensor -->
+<div class="wrap"><table><tr><th>year</th><th class=n>mean L-band</th><th class=n>mean S1</th><th class=n>mean S2</th><th class=n>p98 L-band</th><th class=n>p98 S1</th><th class=n>p98 S2</th><th class=n>cover L-band</th><th class=n>cover S1</th><th class=n>cover S2</th></tr><tr><td>2019</td><td class=n>0.68</td><td class=n>0.23</td><td class=n>0.73</td><td class=n>0.88</td><td class=n>0.25</td><td class=n>0.59</td><td class=n>0.78</td><td class=n>0.34</td><td class=n>0.67</td></tr><tr><td>2021</td><td class=n>0.65</td><td class=n>0.24</td><td class=n>0.59</td><td class=n>0.68</td><td class=n>0.21</td><td class=n>0.34</td><td class=n>0.49</td><td class=n>0.40</td><td class=n>0.71</td></tr><tr><td>2023</td><td class=n>0.82</td><td class=n>0.29</td><td class=n>0.65</td><td class=n>0.76</td><td class=n>0.22</td><td class=n>0.59</td><td class=n>0.58</td><td class=n>0.24</td><td class=n>0.56</td></tr><tr><td>2024</td><td class=n>0.67</td><td class=n>0.12</td><td class=n>0.63</td><td class=n>0.84</td><td class=n>0.14</td><td class=n>0.48</td><td class=n>0.62</td><td class=n>0.18</td><td class=n>0.69</td></tr><tr><td>2025</td><td class=n>0.59</td><td class=n>0.17</td><td class=n>0.74</td><td class=n>0.73</td><td class=n>0.30</td><td class=n>0.48</td><td class=n>0.55</td><td class=n>0.30</td><td class=n>1.02</td></tr><tr><td>2026</td><td class=n>0.79</td><td class=n>0.08</td><td class=n>0.61</td><td class=n>1.08</td><td class=n>0.13</td><td class=n>0.34</td><td class=n>0.50</td><td class=n>0.10</td><td class=n>0.58</td></tr></table></div><p class="src">Permutation R² drop when all bands of one sensor are shuffled, fold mean. L-band = PALSAR (2019-2025), NISAR (2026). Drops do not add up to the R²: the sensors share information.</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2019/importance.csv">class_defs/outputs/mte_retro/2019/importance.csv</a> (2026-11-04 18:30)</p>
+<!-- END table:mte_retro_sensor -->
+<p>PALSAR leads for p98 in every year; S2 leads for cover in 3 of 5 years (PALSAR in 2019, 2023); S1 is lowest everywhere.</p>
 
 <h2>Reports and code</h2>
 <ul>
-<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_regression.txt">REPORT_regression.txt</a> (K-fold R² / RMSE / bias, gains, importances, class check, map checks).</li>
-<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_cover_height.txt">REPORT_cover_height.txt</a> (cover × height, GLCM, combined vs direct).</li>
-<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/cover_height_rf.py">cover_height_rf.py</a> (RF, stacks),
-<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/regression_2026.py">regression_2026.py</a> (<code>score</code>, <code>maps</code>),
-detached launcher <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/regression_maps.ps1">regression_maps.ps1</a>.</li>
-<li>Plan and state: <code>PLAN_regression.md</code> <span class="src">(not in this repo)</span>,
-<code>CHECKPOINT_regression.md</code> <span class="src">(not in this repo)</span>.</li>
+<li><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_mte_retro.txt">REPORT_mte_retro.txt</a> (K-fold, residual, importance, effectiveness, map checks, 2019–2026).</li>
+<li>Change against the filtered-LiDAR run: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_unf_change.txt">REPORT_unf_change.txt</a>
+(K-fold |ΔR²| ≤ 0.007; maps r ≥ 0.98).</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/mte_retro.py">mte_retro.py</a> (all years), <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/mlp_mte_2026.py">mlp_mte_2026.py</a> (method, configuration search).</li>
+<li>State: <code>CHECKPOINT_unf_regression.md</code> <span class="src">(not in this repo)</span>.</li>
 </ul>
 </main>
 </body>

@@ -116,7 +116,7 @@ class MT:
 
     @staticmethod
     def load(path, n_in):
-        z = torch.load(path, weights_only=False)
+        z = torch.load(path, weights_only=False, map_location=DEV)  # members saved on cuda load on a CPU-only run
         net = MTNet(n_in, z["cfg"]["w"], z["cfg"]["drop"], z["cfg"]["head"], np.ones(3)).double()
         net.load_state_dict(z["state"])
         return MT(net, z["mu"], z["sd"], z["qlo"], z["qhi"], z["clamp"], z["cfg"], z["seed"])
@@ -471,9 +471,10 @@ def kfold():
 
 # ------------------------------------------------------------------------------------------- maps
 
-def predict_multi(ens, bands, RR, outs, block_rows=512):
+def predict_multi(ens, bands, RR, outs, block_rows=512, mask=None):
     """FS.predict_raster + predict_year.predict_stack, multi-output: a px is predicted only where every feature is
-    finite; one ensemble pass per block -> 7 single-band rasters; *.partial.tif then rename; nodata -9999."""
+    finite (and mask is True, if a 2-D bool mask is given; mte_retro 2026-11-04); one ensemble pass per block -> 7
+    single-band rasters; *.partial.tif then rename; nodata -9999."""
     import rasterio
     from rasterio.windows import Window
     t0 = time.time()
@@ -489,6 +490,8 @@ def predict_multi(ens, bands, RR, outs, block_rows=512):
             win = Window(0, r0, s.width, n)
             X = s.read(bands, window=win).reshape(len(bands), -1).T
             good = np.isfinite(X).all(1)
+            if mask is not None:
+                good &= mask[r0:r0 + n].ravel()
             vals = {}
             if good.any():
                 mu, sd = ens.predict3(X[good])

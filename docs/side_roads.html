@@ -10,9 +10,8 @@
 <main>
 <nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
 <a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
-<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
-<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html" aria-current="page">Side roads</a>
-<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+<a href="p98_residual.html">5 p98 residual</a><a href="time_pattern.html">6 Time pattern</a><a href="gedi.html">7 GEDI</a>
+<a href="side_roads.html" aria-current="page">Side roads</a><a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
 
 <h1>Side roads</h1>
 <p class="sub">Work done on the way. Not part of the 2026 method. One line each, with the link.</p>
@@ -23,6 +22,10 @@
 <tr><td>2019–2025 structure classes from PALSAR-2 + S1 + S2 (<code>retro_2d</code>)</td>
 <td>k4r / k3r maps per year, K-fold kappa 0.58–0.62; the 2025 model does not transfer to earlier years (0.29–0.43)</td>
 <td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_master.txt">REPORT_master.txt</a></td></tr>
+<tr><td>Regression model choice: RF, single-task MLP, MTE (2026, filtered LiDAR, EPSG:32751)</td>
+<td>MTE beats RF on all 3 targets (pooled R² +0.027 / +0.011 / +0.034) and the residual (+0.036); MLP beats RF on mean and cover only and clips 5–11 % of map px to 0. XGB regression not run. MTE adopted</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_regression.txt">RF</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_mlp_regression.txt">MLP</a>,
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_mlp_mte.txt">MTE vs RF vs MLP</a></td></tr>
 <tr><td>Year signature</td><td>acquisition year recoverable from the bands at 80.7 %: confounds every cross-year height statement</td>
 <td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/woody_thickening_splice_1/REPORT_year_signature.md">REPORT_year_signature.md</a></td></tr>
 <tr><td>PALSAR-2 shift, dates, rain</td><td>shift mainly a 2019 decomposition anomaly; maps step at mosaic strip seams; current-season rain shifts the bands; DN calibration open</td>
@@ -44,9 +47,9 @@
 <td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/lidar_2026/REPORT_structure_sar.md">REPORT_structure_sar.md</a></td></tr>
 <tr><td>One-source maps disagree</td><td>S2-only vs NISAR-only maps agree on 51 % of the mainland (lift 0.18): open</td>
 <td><a href="nisar_accuracy/index.html">diagnosis</a></td></tr>
-<tr><td>DJI Terra 5 cm filter: unfiltered vs filtered cloud</td><td>heights unchanged; cover −0.02; class change Biota 1.5 %, South Dampier 8.1 %</td>
-<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_biota.txt">Biota</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_south_dampier.txt">South Dampier</a></td></tr>
-<tr><td>CRS audit</td><td>relabelling EPSG:7851 → 32751 withdrawn; reprojection fix pending</td>
+<tr><td>DJI Terra 5 cm filter: unfiltered vs filtered cloud</td><td>heights unchanged; cover −0.02; class change Biota 1.5 %, South Dampier 8.1 %. All 5 sites re-exported unfiltered (no shift); the final method uses them; MTE change K-fold |ΔR²| ≤ 0.007</td>
+<td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_biota.txt">Biota</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_unf_south_dampier.txt">South Dampier</a>, <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_unf_change.txt">MTE change</a></td></tr>
+<tr><td>CRS audit</td><td>relabelling EPSG:7851 → 32751 withdrawn; project CRS EPSG:7851; the final MTE chain is reprojected (2026-11-04); other strands pending</td>
 <td><code>crs_audit\CHECKPOINT.md</code> <span class="src">(not in this repo)</span></td></tr>
 <tr><td>Natural 2-D structure classes</td><td>no natural thresholds; stable k = 2–4 (used in the story, step 3)</td>
 <td><a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/structure_2d/REPORT_structure_2d.md">REPORT_structure_2d.md</a></td></tr>

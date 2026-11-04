@@ -1,0 +1,83 @@
+REPORT - p98 residual time pattern 2019-2026 (resid_trend.py; user 2026-11-03)
+r = p98 - g(cover), MTE maps; 2019-2025 PALSAR + S1 + S2, 2026 NISAR + S1 + S2. Red = short for its cover.
+Grid EPSG:7851 100 m, area mean of per-px r, cell valid if >= 50% valid.
+Per-year percentile rank over the domain: red <= 25, blue >= 75.
+Trend: Mann-Kendall S on rank vs year (exact one-sided p <= 0.05); start = mean rank of the first 2 years,
+end = mean rank of the last 2.
+
+RESULT 2019-2026 (share of domain; lift vs its null)
+ Consistently red    4.88%  lift  8.76 (shift null)
+ Consistently blue   8.34%  lift  9.91 (shift null)
+ Red -> blue         0.23%  lift  1.24 (year order null)
+ Toward blue         2.50%  lift  1.13 (year order null)
+ Blue -> red         0.32%  lift  1.70 (year order null)
+ Toward red          2.33%  lift  1.05 (year order null)
+ Consistency is real (lift >> 1). Trend classes are near chance (lift ~1): a single cell's trend is
+ not evidence; use trend cells only as candidates, in clusters, after the fire overlay.
+
+1. DOMAIN (100 m cells)
+mainland 2,578,737 | valid any year 2,578,690 | valid all 6 years (domain) 2,528,181 (98.0%) | domain in pindan 815,351
+
+grid check (100 m area mean vs native px mean, same cells, m)
+ year  src_res  n_cells  native_mean  grid_mean_wtd   d
+ 2019  24.0956  2534198       0.0006         0.0007 0.0
+ 2021  24.0956  2578787       0.0007         0.0007 0.0
+ 2023  24.0956  2574298       0.0008         0.0008 0.0
+ 2024  24.0956  2566929      -0.0010        -0.0010 0.0
+ 2025  24.2831  2578612      -0.0003        -0.0003 0.0
+ 2026  20.0000  2575720      -0.0005        -0.0005 0.0
+
+per-year residual SD at 100 m (m): 2019 1.18 2021 1.39 2023 1.03 2024 1.29 2025 1.23 2026 1.30
+
+2. RANK CORRELATION BETWEEN YEARS (Spearman, 100 m cells)
+       2019   2021   2023   2024   2025   2026
+2019  1.000  0.484  0.333  0.409  0.330  0.361
+2021  0.484  1.000  0.397  0.471  0.515  0.428
+2023  0.333  0.397  1.000  0.353  0.357  0.392
+2024  0.409  0.471  0.353  1.000  0.441  0.435
+2025  0.330  0.515  0.357  0.441  1.000  0.382
+2026  0.361  0.428  0.392  0.435  0.382  1.000
+
+3. CLASSES 2019-2026 (MK S >= 10, exact p 0.0278; consistent = red / blue in >= n-1 years, never the other)
+                   code    cells       km2   share  null_year_order  null_shift  share_pindan  share_not_pindan  lift_order  lift_shift
+No pattern            0  2057850  20578.50  0.8140           0.8196      0.9331        0.7767            0.8317      0.9931      0.8723
+Consistently red      1   123263   1232.63  0.0488           0.0488      0.0056        0.0585            0.0441      1.0000      8.7633
+Consistently blue     2   210935   2109.35  0.0834           0.0834      0.0084        0.1105            0.0705      1.0000      9.9065
+Red -> blue           3     5822     58.22  0.0023           0.0019      0.0039        0.0015            0.0027      1.2367      0.5904
+Toward blue           4    63321    633.21  0.0250           0.0222      0.0207        0.0204            0.0273      1.1265      1.2123
+Blue -> red           5     8055     80.55  0.0032           0.0019      0.0061        0.0053            0.0022      1.7048      0.5251
+Toward red            6    58935    589.35  0.0233           0.0222      0.0223        0.0271            0.0215      1.0483      1.0458
+
+4. CLASSES 2019-2025 (MK S >= 7, exact p 0.0417; consistent = red / blue in >= n-1 years, never the other)
+                   code    cells       km2   share  null_year_order  null_shift  share_pindan  share_not_pindan  lift_order  lift_shift
+No pattern            0  1894829  18948.29  0.7495           0.7555      0.8776        0.7162            0.7653      0.9920      0.8540
+Consistently red      1   188172   1881.72  0.0744           0.0744      0.0152        0.0761            0.0737      1.0000      4.9051
+Consistently blue     2   256147   2561.47  0.1013           0.1013      0.0245        0.1334            0.0860      1.0000      4.1373
+Red -> blue           3     4392     43.92  0.0017           0.0019      0.0072        0.0030            0.0011      0.9127      0.2410
+Toward blue           4    91460    914.60  0.0362           0.0324      0.0365        0.0318            0.0382      1.1152      0.9903
+Blue -> red           5     5854     58.54  0.0023           0.0019      0.0053        0.0033            0.0018      1.2104      0.4353
+Toward red            6    87327    873.27  0.0345           0.0325      0.0336        0.0361            0.0338      1.0642      1.0270
+
+class codes: 0 No pattern, 1 Consistently red, 2 Consistently blue, 3 Red -> blue, 4 Toward blue, 5 Blue -> red, 6 Toward red
+null_year_order = random year order per cell (50 x): trend classes by chance.
+null_shift = each year's map shifted by a random offset (10-30 km, 20 x): consistency by chance.
+lift = share / null. Use lift_shift for codes 1-2, lift_order for codes 3-6.
+
+5. 2026 POINT: same class with and without 2026: 0.884 of domain cells
+   (crosstab: outputs/resid_trend/crosstab_2026_vs_2025.csv)
+
+6. FILES (E:\nisar_2026\regression\trend\)
+ p98_resid_MTE_stack_2019_2026_100m.tif  6 bands, r (m) per year
+ p98_resid_pattern_2019_2026_100m.tif    uint8 class codes, 255 = outside domain
+ p98_resid_trend_2019_2026_100m.tif      sen_rank_per_yr, sen_m_per_yr, mk_S, mk_p_one_sided, mean_rank,
+                                          n_red, n_blue, rank_<year> x 6
+ p98_resid_pattern_2019_2025_100m.tif    sensitivity, PALSAR years only
+
+CAVEATS
+- Acquisition year is recoverable from the bands. Ranks remove year-wide shifts only, not spatial artefacts.
+- PALSAR mosaic strip seams step the maps (retro_2d/REPORT_palsar_date.txt): straight edges = suspect.
+- 2026 is another sensor (NISAR L-band) and another model; see section 5.
+- Red = short for its cover also after fire (resprouting); red -> blue can be post-fire recovery.
+  Fire history (NAFI) not yet overlaid.
+- All labels are 2025 / 2026 LiDAR: accuracy degrades backwards in time.
+- Per-px r has K-fold R2 ~0.5; 100 m cells are better but not validated over time.

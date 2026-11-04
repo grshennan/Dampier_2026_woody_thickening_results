@@ -10,12 +10,12 @@
 <main>
 <nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html" aria-current="page">2 Stack</a>
 <a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
-<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
-<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
-<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+<a href="p98_residual.html">5 p98 residual</a><a href="time_pattern.html">6 Time pattern</a><a href="gedi.html">7 GEDI</a>
+<a href="side_roads.html">Side roads</a><a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
 
 <h1>2 · The image stack</h1>
-<p class="sub">49 features, native NISAR 20 m grid (EPSG:32751, 11625 × 9081), images 2026-09-20 to 10-11.</p>
+<p class="sub">2026: 49 features, native NISAR 20 m grid (11625 × 9081), images 2026-09-20 to 10-11.
+2019–2025: PALSAR-2 + S1 + S2, 20 features. All stacks in EPSG:7851 (origin moved from EPSG:32751 by EPSG:8048 at the year's epoch, 0.03–0.47 m; values unchanged).</p>
 
 <h2>Result</h2>
 <div class="wrap"><table>
@@ -29,6 +29,11 @@
 <p>File: <code>E:\nisar_2026\feature_stack_2026_gslcg0_rflee9_ws5_s1.tif</code> <span class="src">(not yet available)</span>.
 The images bracket the 2026 LiDAR flights (10-05 to 10-09).</p>
 
+<h3>2019–2025 stack</h3>
+<p>PALSAR-2 annual mosaic (HH / HV γ0 + decomposition, Refined Lee 7 × 7, window 5) + Sentinel-1 + Sentinel-2,
+20 features on each year's own grid (about 24 m). 2020 and 2022: no PALSAR mosaic over Dampier.
+Files: <code>E:\nisar_2026\regression\retro\&lt;year&gt;\stack_&lt;year&gt;_mga51.tif</code>.</p>
+
 <h2>How we chose it</h2>
 <p>The first 2026 stack used NISAR GCOV, Refined Lee 5 × 5. The accuracy diagnosis (Stage 1 / 1.5) then tested the
 NISAR processing:</p>
@@ -41,11 +46,11 @@ NISAR processing:</p>
 <p>Detail: <a href="nisar_accuracy/index.html">NISAR accuracy diagnosis</a> (Stage 1, 1.5).</p>
 
 <h2>What each sensor carries</h2>
-<!-- BEGIN table:reg_sensor -->
-<div class="wrap"><table><tr><th>target</th><th class=n>NISAR</th><th class=n>S1</th><th class=n>S2</th></tr><tr><td>mean</td><td class=n>0.540 (0.010)</td><td class=n>0.020 (0.001)</td><td class=n>0.509 (0.008)</td></tr><tr><td>cover</td><td class=n>0.312 (0.006)</td><td class=n>0.204 (0.014)</td><td class=n>0.377 (0.004)</td></tr></table></div><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/regression/score_importance.csv">class_defs/outputs/regression/score_importance.csv</a> (2026-11-02 14:41)</p>
-<!-- END table:reg_sensor -->
-<p>Drop in K-fold R² when one sensor's features are permuted (RF, ALL stack). NISAR and S2 carry the px mean height
-about equally. S1 matters for cover, not for height.</p>
+<!-- BEGIN table:mte_sensor -->
+<div class="wrap"><table><tr><th>target</th><th class=n>NISAR</th><th class=n>S1</th><th class=n>S2</th></tr><tr><td>mean</td><td class=n>0.79 (0.03)</td><td class=n>0.08 (0.01)</td><td class=n>0.61 (0.02)</td></tr><tr><td>p98</td><td class=n>1.08 (0.04)</td><td class=n>0.13 (0.02)</td><td class=n>0.34 (0.02)</td></tr><tr><td>cover</td><td class=n>0.50 (0.03)</td><td class=n>0.10 (0.01)</td><td class=n>0.58 (0.01)</td></tr></table></div><p class="src">Drop in K-fold R² when all bands of one sensor are permuted, fold mean (fold SD). The drops do not add up to the R²: the sensors share information.</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/mte_retro/2026/importance.csv">class_defs/outputs/mte_retro/2026/importance.csv</a> (2026-11-04 18:39)</p>
+<!-- END table:mte_sensor -->
+<p>MTE, 2026 stack. NISAR leads for height, p98 most; S2 leads for cover, NISAR close. S1 adds little.
+Per year 2019–2025 (PALSAR as the L-band): <a href="regression.html#retro">4 · Regression</a>.</p>
 
 <figure><a href="../lidar_2026/outputs/structure_sar/figures/pooled/r2_matrix.png"><img src="../lidar_2026/outputs/structure_sar/figures/pooled/r2_matrix.png" alt="R2 matrix of structure statistics against NISAR features" loading="lazy"></a>
 <figcaption>One NISAR feature against one structure statistic (5 sites pooled). Cover × p98 explains most

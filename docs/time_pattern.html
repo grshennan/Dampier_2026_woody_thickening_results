@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Residual Time Pattern</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<nav><a href="index.html">Story</a><a href="labels.html">1 Labels</a><a href="stack.html">2 Stack</a>
+<a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
+<a href="p98_residual.html">5 p98 residual</a><a href="time_pattern.html" aria-current="page">6 Time pattern</a><a href="gedi.html">7 GEDI</a>
+<a href="side_roads.html">Side roads</a><a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+
+<h1>6 · Time pattern 2019–2026: where red and blue persist</h1>
+<p class="sub">MTE p98 residual maps, 6 years (2019, 2021, 2023, 2024, 2025: PALSAR + S1 + S2; 2026: NISAR + S1 + S2),
+area mean on one 100 m EPSG:7851 grid. Per-year rank, so year-wide shifts drop out.</p>
+
+<figure><a href="../class_defs/outputs/resid_trend/fig_resid_pattern.png"><img src="../class_defs/outputs/resid_trend/fig_resid_pattern.png" alt="Pattern class map 2019-2026: consistently red, consistently blue, trend classes, no pattern" loading="lazy"></a>
+<figcaption>Strong red / blue: the same side of the residual in ≥ 5 of 6 years, never the other side.
+Muted: trend classes (near chance). Grey: no pattern.
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/fig_resid_pattern.py">fig_resid_pattern.py</a></figcaption></figure>
+
+<h2>Method</h2>
+<ul>
+<li>Per year: residual r = p98 − g(cover) from that year's MTE maps (<a href="p98_residual.html">5 · p98 residual</a>).</li>
+<li>Area mean of per-px r into 100 m cells; a cell is valid if ≥ 50 % of it is valid. Domain = valid in all 6 years.</li>
+<li>Per-year percentile rank over the domain: red = rank ≤ 25, blue = rank ≥ 75.</li>
+<li>Consistent = red (blue) in ≥ 5 of 6 years and never blue (red).</li>
+<li>Trend = Mann–Kendall S on rank vs year, exact one-sided p ≤ 0.05 (S ≥ 10).
+Start / end = mean rank of the first / last 2 years.</li>
+</ul>
+
+<h2>Result</h2>
+<!-- BEGIN table:resid_pattern -->
+<div class="wrap"><table><tr><th>code</th><th>class</th><th class=n>share</th><th class=n>km²</th><th class=n>share, pindan</th><th class=n>lift (null)</th></tr><tr><td>0</td><td>No pattern</td><td class=n>81.40 %</td><td class=n>20,578</td><td class=n>77.67 %</td><td class=n>0.99 (year order)</td></tr><tr><td>1</td><td>Consistently red</td><td class=n>4.88 %</td><td class=n>1,233</td><td class=n>5.85 %</td><td class=n>8.76 (shift)</td></tr><tr><td>2</td><td>Consistently blue</td><td class=n>8.34 %</td><td class=n>2,109</td><td class=n>11.05 %</td><td class=n>9.91 (shift)</td></tr><tr><td>3</td><td>Red -&gt; blue</td><td class=n>0.23 %</td><td class=n>58</td><td class=n>0.15 %</td><td class=n>1.24 (year order)</td></tr><tr><td>4</td><td>Toward blue</td><td class=n>2.50 %</td><td class=n>633</td><td class=n>2.04 %</td><td class=n>1.13 (year order)</td></tr><tr><td>5</td><td>Blue -&gt; red</td><td class=n>0.32 %</td><td class=n>81</td><td class=n>0.53 %</td><td class=n>1.70 (year order)</td></tr><tr><td>6</td><td>Toward red</td><td class=n>2.33 %</td><td class=n>589</td><td class=n>2.71 %</td><td class=n>1.05 (year order)</td></tr></table></div><p class="src">Domain: 2,528,181 cells of 100 m valid in all 6 years (253 km²; 815,351 in pindan). Lift = share / null share. Shift null: each year's map moved 10–30 km (consistency by chance). Year-order null: random year order per cell (trend by chance).</p><p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/resid_trend/classes_2019_2026.csv">class_defs/outputs/resid_trend/classes_2019_2026.csv</a> (2026-11-04 22:27); <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/outputs/resid_trend/summary.json">class_defs/outputs/resid_trend/summary.json</a> (2026-11-04 22:27)</p>
+<!-- END table:resid_pattern -->
+
+<div class="flag"><strong>Read.</strong>
+Consistent red / blue is real: 9–10 × the shift null.
+Trend classes (codes 3–6) are near chance (lift 1.0–1.7): a trend cell is a candidate, not evidence.
+Use trend cells only in clusters, after a fire overlay.</div>
+
+<h3>Checks</h3>
+<div class="wrap"><table>
+<tr><th>Check</th><th>Result</th></tr>
+<tr><td>Rank correlation between years (Spearman, 100 m)</td><td>0.33–0.52</td></tr>
+<tr><td>Same class with and without 2026</td><td>88 % of domain cells</td></tr>
+<tr><td>Against the filtered-LiDAR / EPSG:32751 run</td><td>94.2 % of cells keep their class</td></tr>
+<tr><td>Residual SD at 100 m, per year</td><td>1.03 (2023) to 1.39 m (2021)</td></tr>
+</table></div>
+<p class="src">source: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_resid_trend.txt">REPORT_resid_trend.txt</a> §2, §5;
+<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_unf_change.txt">REPORT_unf_change.txt</a> §5 (fixed text).</p>
+
+<h2>Caveats</h2>
+<ul>
+<li>Acquisition year is recoverable from the bands. Ranks remove year-wide shifts only, not spatial artefacts.</li>
+<li>PALSAR mosaic strip seams step the maps (<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/retro_2d/REPORT_palsar_date.txt">REPORT_palsar_date.txt</a>):
+straight edges are suspect.</li>
+<li>2026 is another sensor (NISAR) and another model.</li>
+<li>Red = short for its cover also after fire (resprouting); red → blue can be post-fire recovery.
+Fire history (NAFI) is not overlaid yet.</li>
+<li>All labels are 2025 / 2026 LiDAR: accuracy degrades backwards in time.</li>
+<li>Per-px r has K-fold R² about 0.5; 100 m cells are better, but not validated over time.</li>
+<li>Not a change map: it shows where a structure contrast persists, not how much the vegetation changed.</li>
+</ul>
+
+<h2>Files</h2>
+<ul>
+<li><code>E:\nisar_2026\regression\trend\</code>:
+<code>p98_resid_pattern_2019_2026_100m.tif</code> <span class="src">(not yet available)</span> (uint8 codes, 255 = outside the domain),
+<code>p98_resid_trend_2019_2026_100m.tif</code> <span class="src">(not yet available)</span> (Sen slope, MK S and p, ranks),
+<code>p98_resid_MTE_stack_2019_2026_100m.tif</code> <span class="src">(not yet available)</span> (r per year),
+<code>p98_resid_pattern_2019_2025_100m.tif</code> <span class="src">(not yet available)</span> (PALSAR years only).</li>
+<li>QGIS: <code>G:\Dampier\Dampier.qgz</code> (layers point at the canonical paths).</li>
+<li>Code: <a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/resid_trend.py">resid_trend.py</a>. Tables: <code>class_defs\outputs\resid_trend\</code>.</li>
+</ul>
+</main>
+</body>
+</html>

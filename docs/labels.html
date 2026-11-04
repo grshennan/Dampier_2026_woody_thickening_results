@@ -10,24 +10,25 @@
 <main>
 <nav><a href="index.html">Story</a><a href="labels.html" aria-current="page">1 Labels</a><a href="stack.html">2 Stack</a>
 <a href="classification.html">3 Classification</a><a href="regression.html">4 Regression</a>
-<a href="p98_residual.html">5 p98 residual</a><a href="gedi.html">6 GEDI</a>
-<a href="models_regression.html">7 Model choice (in progress)</a><a href="side_roads.html">Side roads</a>
-<a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
+<a href="p98_residual.html">5 p98 residual</a><a href="time_pattern.html">6 Time pattern</a><a href="gedi.html">7 GEDI</a>
+<a href="side_roads.html">Side roads</a><a href="nisar_accuracy/index.html">NISAR diagnosis</a></nav>
 
 <h1>1 · LiDAR → training labels</h1>
-<p class="sub">Drone LiDAR point clouds → 50 cm CHM and cover → statistics per 20 m NISAR pixel.</p>
+<p class="sub">Drone LiDAR point clouds → 50 cm CHM and cover → statistics per stack pixel (20 m NISAR in 2026; about 24 m PALSAR in 2019–2025). EPSG:7851.</p>
 
 <h2>Result</h2>
 <div class="wrap"><table>
 <tr><th>Source</th><th>Areas</th><th class="n">Label px</th><th>Flown</th><th>Note</th></tr>
-<tr><td>Dampier 2026</td><td>9 Mile, Biota track, Bunda Extra, Country Downs, South Dampier</td><td class="n">34,715</td>
-<td>2026-10-05 to 10-09</td><td>Bunda Bunda and 2 MVT sites excluded; 0 cells burnt in the image window</td></tr>
+<tr><td>Dampier 2026</td><td>9 Mile, Biota track, Bunda Extra, Country Downs, South Dampier</td><td class="n">34,714</td>
+<td>2026-10-05 to 10-09</td><td>Unfiltered clouds (no DJI Terra density filter). Bunda Bunda and 2 MVT sites excluded; 0 cells burnt in the image window</td></tr>
 <tr><td>Yawuru 2025, kept</td><td>YA25_2, YA25_3, YA25_5, 20250407_govcowwell, YJ25_1, YJ25_6, YOct25_1</td>
 <td class="n">4,308</td><td>2025-03 to 2025-10</td><td>YA25_1–5 single-return</td></tr>
 <tr><td>Yawuru 2025, dropped</td><td>YA25_1, YA25_4, YJ25_2, YJ25_3, YJ25_4, YJ25_5</td><td class="n">—</td><td></td>
-<td>burnt between flight and image (NAFI + S2)</td></tr>
-<tr><td><strong>Total</strong></td><td>12 areas</td><td class="n"><strong>39,023</strong></td><td></td><td></td></tr>
+<td>burnt between flight and the 2026 images (NAFI + S2); kept for 2019–2025</td></tr>
+<tr><td><strong>Total</strong></td><td>12 areas</td><td class="n"><strong>39,022</strong></td><td></td><td></td></tr>
 </table></div>
+<p>Table: 2026 (NISAR grid). 2019–2025: the same LiDAR on each year's PALSAR grid, all 13 Yawuru areas:
+29,266–29,800 label px per year (<a href="regression.html#retro">4 · Regression</a>).</p>
 
 <p>Targets per 20 m pixel (from the 50 cm p98 CHM cells inside it):</p>
 <ul>
@@ -64,9 +65,11 @@ for the residual. <a href="https://github.com/grshennan/Dampier_2026_woody_thick
 <ul>
 <li>Yawuru labels are 2025, the images 2026. Unburnt areas only, but growth in one year is not modelled.</li>
 <li>YA25_1–5 were flown single-return (fewer returns under the canopy).</li>
-<li>2026 Dampier clouds have the DJI Terra 5 cm density filter. Tests on 2 sites: heights unchanged, cover −0.02.
-A re-export without the filter is pending.</li>
-<li>CRS: CHM relabelled 7851 → 32751, not reprojected (fix pending).</li>
+<li>2026 Dampier clouds: re-exported without the DJI Terra 5 cm density filter (all 5 sites, no position shift).
+Against the filtered labels: d mean −0.013 m, d p98 −0.006 m, d cover −0.003
+(<a href="https://github.com/grshennan/Dampier_2026_woody_thickening_results/blob/main/class_defs/REPORT_unf_change.txt">REPORT_unf_change.txt</a> §1).</li>
+<li>CRS: labels are on the EPSG:7851 stack grids. Yawuru 2025 CHMs are GDA2020 with a wrong EPSG:32751 label: corrected
+<code>*_mga51</code> copies (AUSPOS + user statement). The label px move with the stack grid (0.03–0.47 m).</li>
 </ul>
 
 <h2>Code and data</h2>
